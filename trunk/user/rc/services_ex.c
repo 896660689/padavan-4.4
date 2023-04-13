@@ -959,10 +959,16 @@ write_inadyn_conf(const char *conf_file, int use_delay)
 	else if (i_ddns_source == 2)
 		strcpy(wan_ifname, get_man_ifname(0));
 
-	i_max = ARRAY_SIZE(inadyn_checkip_url) - 1;
-	i_ddns_checkip = nvram_safe_get_int("ddns_checkip", 0, 0, i_max);
+	i_ddns_ipv6 = nvram_get_int("ddns_ipv6");
 
+	i_max = ARRAY_SIZE(checkip_urls) - 1;
+	i_ddns1_checkip = nvram_safe_get_int("ddns_checkip", 0, 0, i_max);
+	i_ddns2_checkip = nvram_safe_get_int("ddns2_checkip", 0, 0, i_max);
+
+	i_ddns1_ssl = nvram_get_int("ddns_ssl");
+	i_ddns2_ssl = nvram_get_int("ddns2_ssl");
 	ddns1_svc = get_inadyn_system(nvram_safe_get("ddns_server_x"));
+
 	if (!ddns1_svc) {
 		ddns1_svc = inadyn_systems[0].system;
 		nvram_set("ddns_server_x", inadyn_systems[0].alias);

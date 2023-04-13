@@ -46,6 +46,7 @@ endif
 endif
 endif
 OBJS += dbapi.o
+
 all: $(OBJS) Makefile
 	$(CC) -o $(EXEC) $(OBJS) $(LDFLAGS)
 	$(STRIP) $(EXEC)
@@ -61,3 +62,4 @@ romfs:
 ifeq ($(CONFIG_FIRMWARE_INCLUDE_HTTPS),y)
 	$(ROMFSINST) /usr/bin/https-cert.sh
 endif
+

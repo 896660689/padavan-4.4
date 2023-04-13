@@ -3,7 +3,6 @@ var wan_route_x = '<% nvram_get_x("", "wan_route_x"); %>';
 var wan_proto = '<% nvram_get_x("", "wan_proto"); %>';
 var lan_proto = '<% nvram_get_x("", "lan_proto_x"); %>';
 var log_float = '<% nvram_get_x("", "log_float_ui"); %>';
-var reboot_schedule_support = '<% nvram_get_x("", "reboot_schedule_enable"); %>';
 var log_stamp = 0;
 var sysinfo = <% json_system_status(); %>;
 var uptimeStr = "<% uptime(); %>";
@@ -12,7 +11,7 @@ var newformat_systime = uptimeStr.substring(8,11) + " " + uptimeStr.substring(5,
 var systime_millsec = Date.parse(newformat_systime); // millsec from system
 var JS_timeObj = new Date(); // 1970.1.1
 var cookie_pref = 'n56u_cookie_';
-var ss_schedule_support = '<% nvram_get_x("", "ss_schedule_enable"); %>';
+
 var uagent = navigator.userAgent.toLowerCase();
 var is_ie11p = (/trident\/7\./).test(uagent);
 var is_mobile = (/iphone|ipod|ipad|iemobile|android|blackberry|fennec/).test(uagent);
@@ -35,6 +34,68 @@ var cookie = {
 	}
 };
 
+function HashMap() {
+	var length = 0;
+	var obj = new Object();
+	this.isEmpty = function () {
+		return length == 0;
+	};
+
+	this.containsKey = function (key) {
+		return (key in obj);
+	};
+
+	this.containsValue = function (value) {
+		for (var key in obj) {
+			if (obj[key] == value) {
+				return true;
+			}
+		}
+		return false;
+	};
+
+	this.put = function (key, value) {
+		if (!this.containsKey(key)) {
+			length++;
+		}
+		obj[key] = value;
+	};
+
+	this.get = function (key) {
+		return this.containsKey(key) ? obj[key] : null;
+	};
+
+	this.remove = function (key) {
+		if (this.containsKey(key) && (delete obj[key])) {
+			length--;
+		}
+	};
+
+	this.values = function () {
+		var _values = new Array();
+		for (var key in obj) {
+			_values.push(obj[key]);
+		}
+		return _values;
+	};
+
+	this.keySet = function () {
+		var _keys = new Array();
+		for (var key in obj) {
+			_keys.push(key);
+		}
+		return _keys;
+	};
+
+	this.size = function () {
+		return length;
+	};
+
+	this.clear = function () {
+		length = 0;
+		obj = new Object();
+	};
+}
 <% firmware_caps_hook(); %>
 
 function get_ap_mode(){
@@ -120,12 +181,12 @@ function get_system_info(){
 	});
 }
 
-function bytesToSize(bytes, precision){
-	var absval = Math.abs(bytes);
-	var kilobyte = 1024;
-	var megabyte = kilobyte * 1024;
-	var gigabyte = megabyte * 1024;
-	var terabyte = gigabyte * 1024;
+function bytesToSize(bytes, precision) {
+	var absval = Math.abs(bytes),
+		kilobyte = 1024,
+		megabyte = kilobyte * 1024,
+		gigabyte = megabyte * 1024,
+		terabyte = gigabyte * 1024;
 
 	if (absval < kilobyte)
 		return bytes + ' B';
@@ -148,8 +209,8 @@ function setSystemInfo(response){
 	if(typeof(si_new) !== 'object')
 		return;
 
-	var cpu_now = {};
-	var cpu_total = (si_new.cpu.total - sysinfo.cpu.total);
+	var cpu_now = {},
+		cpu_total = (si_new.cpu.total - sysinfo.cpu.total);
 	if (!cpu_total)
 		cpu_total = 1;
 
@@ -167,32 +228,32 @@ function setSystemInfo(response){
 	showSystemInfo(cpu_now,1);
 }
 
-function showSystemInfo(cpu_now,force){
-	var $j = jQuery.noConflict();
-	var arrLA = sysinfo.lavg.split(' ');
-	var h = sysinfo.uptime.hours < 10 ? ('0'+sysinfo.uptime.hours) : sysinfo.uptime.hours;
-	var m = sysinfo.uptime.minutes < 10 ? ('0'+sysinfo.uptime.minutes) : sysinfo.uptime.minutes;
+function showSystemInfo(cpu_now, force) {
+	var $j = jQuery.noConflict(),
+		arrLA = sysinfo.lavg.split(' '),
+		h = sysinfo.uptime.hours < 10 ? ('0' + sysinfo.uptime.hours) : sysinfo.uptime.hours,
+		m = sysinfo.uptime.minutes < 10 ? ('0'+sysinfo.uptime.minutes) : sysinfo.uptime.minutes;
 
 	$j("#la_info").html('<span class="label label-'+getLALabelStatus(arrLA[0])+'">'+arrLA[0]+'</span>&nbsp;<span class="label label-'+getLALabelStatus(arrLA[1])+'">'+arrLA[1]+'</span>&nbsp;<span class="label label-'+getLALabelStatus(arrLA[2])+'">'+arrLA[2]+'</span>');
 	$j("#cpu_info").html(cpu_now.busy + '%');
 	$j("#mem_info").html(bytesToSize(sysinfo.ram.free*1024, 2) + " / " + bytesToSize(sysinfo.ram.total*1024, 2));
 	$j("#uptime_info").html(sysinfo.uptime.days + "<#Day#>".substring(0,1) + " " + h+"<#Hour#>".substring(0,1) + " " + m+"<#Minute#>".substring(0,1));
 
-	$j("#cpu_usage tr:nth-child(1) td:first").html('busy: '+cpu_now.busy+'%');
-	$j("#cpu_usage tr:nth-child(2) td:first").html('user: '+cpu_now.user+'%');
-	$j("#cpu_usage tr:nth-child(2) td:last").html('system: '+cpu_now.system+'%');
-	$j("#cpu_usage tr:nth-child(3) td:first").html('sirq: '+cpu_now.sirq+'%');
-	$j("#cpu_usage tr:nth-child(3) td:last").html('irq: '+cpu_now.irq+'%');
-	$j("#cpu_usage tr:nth-child(4) td:first").html('idle: '+cpu_now.idle+'%');
-	$j("#cpu_usage tr:nth-child(4) td:last").html('nice: '+cpu_now.nice+'%');
+	$j("#cpu_usage tr:nth-child(1) td:first").html('<#busy#>: '+cpu_now.busy+'%');
+	$j("#cpu_usage tr:nth-child(2) td:first").html('<#user#>: '+cpu_now.user+'%');
+	$j("#cpu_usage tr:nth-child(2) td:last").html('<#system#>: '+cpu_now.system+'%');
+	$j("#cpu_usage tr:nth-child(3) td:first").html('<#sirq#>: '+cpu_now.sirq+'%');
+	$j("#cpu_usage tr:nth-child(3) td:last").html('<#irq#>: '+cpu_now.irq+'%');
+	$j("#cpu_usage tr:nth-child(4) td:first").html('<#idle#>: '+cpu_now.idle+'%');
+	$j("#cpu_usage tr:nth-child(4) td:last").html('<#nice#>: '+cpu_now.nice+'%');
 
-	$j("#mem_usage tr:nth-child(1) td:first").html('total: '+bytesToSize(sysinfo.ram.total*1024, 2));
-	$j("#mem_usage tr:nth-child(2) td:first").html('free: '+bytesToSize(sysinfo.ram.free*1024, 2));
-	$j("#mem_usage tr:nth-child(2) td:last").html('used: '+bytesToSize(sysinfo.ram.used*1024, 2));
-	$j("#mem_usage tr:nth-child(3) td:first").html('cached: '+bytesToSize(sysinfo.ram.cached*1024, 2));
-	$j("#mem_usage tr:nth-child(3) td:last").html('buffers: '+bytesToSize(sysinfo.ram.buffers*1024, 2));
-	$j("#mem_usage tr:nth-child(4) td:first").html('swap: '+bytesToSize(sysinfo.swap.total*1024, 2));
-	$j("#mem_usage tr:nth-child(4) td:last").html('swap used: '+bytesToSize(sysinfo.swap.used*1024, 2));
+	$j("#mem_usage tr:nth-child(1) td:first").html('<#total#>: '+bytesToSize(sysinfo.ram.total*1024, 2));
+	$j("#mem_usage tr:nth-child(2) td:first").html('<#free#>: '+bytesToSize(sysinfo.ram.free*1024, 2));
+	$j("#mem_usage tr:nth-child(2) td:last").html('<#used#>: '+bytesToSize(sysinfo.ram.used*1024, 2));
+	$j("#mem_usage tr:nth-child(3) td:first").html('<#cached#>: '+bytesToSize(sysinfo.ram.cached*1024, 2));
+	$j("#mem_usage tr:nth-child(3) td:last").html('<#buffers#>: '+bytesToSize(sysinfo.ram.buffers*1024, 2));
+	$j("#mem_usage tr:nth-child(4) td:first").html('<#swap#>: '+bytesToSize(sysinfo.swap.total*1024, 2));
+	$j("#mem_usage tr:nth-child(4) td:last").html('<#swap used#>: '+bytesToSize(sysinfo.swap.used*1024, 2));
 
 	if(parseInt(sysinfo.wifi2.state) > 0)
 		$j('#wifi2_b').addClass('btn-info');
@@ -203,8 +264,8 @@ function showSystemInfo(cpu_now,force){
 		$j('#wifi5_b').addClass('btn-info');
 	else
 		$j('#wifi5_b').removeClass('btn-info');
-
 	if ('<% nvram_get_x("", "sdns_enable"); %>' == '1')
+
 		$j('#button_script2').addClass('btn-info');
 	else
 		$j('#button_script2').removeClass('btn-info');
@@ -234,9 +295,10 @@ var enabledBtnCommit = '<% nvram_match_x("","nvram_manual", "0", "display:none;"
 
 // L3 = The third Level of Menu
 function show_banner(L3){
-	var bc = '';
-	var style_2g = 'width:55px;';
-	var style_5g = 'width:55px;';
+	var $j = jQuery.noConflict();
+	var bc = '',
+		style_2g = 'width:55px;',
+		style_5g = 'width:55px;';
 	if (!support_5g_radio()) {
 		style_2g = 'width:114px;';
 		style_5g = 'width:21px;display:none;';
@@ -247,7 +309,7 @@ function show_banner(L3){
 	}
 
 	// log panel
-	if (!is_mobile && log_float != '0'){
+	if (!is_mobile && log_float != '0') {
 		bc += '<div class="syslog_panel">\n';
 		bc += '<button id="syslog_panel_button" class="handle" href="/"><span class="log_text">Log</span></button>\n';
 		bc += '<table class="" style="margin-top: 0px; margin-bottom: 5px" width="100%" border="0">\n';
@@ -304,7 +366,7 @@ function show_banner(L3){
 	bc += '<table class="table table-condensed" width="100%" style="margin-bottom: 0px;">\n';
 	bc += '  <tr>\n';
 	bc += '    <td width="43%" style="text-align:left; border: 0 none;"></td>\n';
-	bc += '    <td style="border: 0 none; text-align:right;"><a class="label" href="javascript:void(0)" onclick="hide_adv_info();">hide</a></td>\n';
+	bc += '    <td style="border: 0 none; text-align:right;"><a class="label" href="javascript:void(0)" onclick="hide_adv_info();"><#hide#></a></td>\n';
 	bc += '  </tr>\n';
 	bc += '  <tr>\n';
 	bc += '    <td style="height: 20px;"></td>\n';
@@ -325,7 +387,7 @@ function show_banner(L3){
 	bc += '<table class="table table-condensed" width="100%" style="margin-bottom: 0px;">\n';
 	bc += '  <tr>\n';
 	bc += '    <td width="43%" style="text-align:left; border: 0 none;"></td>\n';
-	bc += '    <td style="border: 0 none; text-align:right;"><a class="label" href="javascript:void(0)" onclick="hide_adv_info();">hide</a></td>\n';
+	bc += '    <td style="border: 0 none; text-align:right;"><a class="label" href="javascript:void(0)" onclick="hide_adv_info();"><#hide#></a></td>\n';
 	bc += '  </tr>\n';
 	bc += '  <tr>\n';
 	bc += '    <td style="height: 20px;"></td>\n';
@@ -377,14 +439,13 @@ function show_banner(L3){
 
 	bc +='</td></tr></table>\n';
 
-	$("TopBanner").innerHTML = bc;
+	$j("#TopBanner").html(bc);
 
 	show_loading_obj();
 	show_top_status();
 }
 
-var tabtitle = new Array(20);
-var tablink = new Array(20);
+var tabtitle = new Array(13);
 tabtitle[0] = new Array("", "<#menu5_1_1#>", "<#menu5_1_2#>", "<#menu5_1_3#>", "<#menu5_1_4#>", "<#menu5_1_5#>", "<#menu5_1_6#>");
 tabtitle[1] = new Array("", "<#menu5_1_1#>", "<#menu5_1_2#>", "<#menu5_1_3#>", "<#menu5_1_4#>", "<#menu5_1_5#>", "<#menu5_1_6#>");
 tabtitle[2] = new Array("", "<#menu5_2_1#>", "<#menu5_2_2#>", "<#menu5_2_3#>", "<#menu5_2_4#>", "<#menu5_2_5#>", "<#menu5_2_6#>");
@@ -395,40 +456,30 @@ tabtitle[6] = new Array("", "<#menu5_6_2#>", "<#menu5_6_5#>", "<#menu5_6_1#>", "
 tabtitle[7] = new Array("", "<#menu5_10_1#>", "<#menu5_10_2#>", "<#menu5_10_3#>");
 tabtitle[8] = new Array("", "<#menu5_11#>", "<#menu5_12#>", "WAN", "", "", "", "", "", "", "");
 tabtitle[9] = new Array("", "<#menu5_7_2#>", "<#menu5_7_3#>", "<#menu5_7_5#>", "<#menu5_7_6#>", "<#menu5_7_8#>");
-if (found_app_scutclient()){
-	tabtitle[10] = new Array("", "<#menu5_1_1#>","<#menu5_13_log#>");
-}
-if (found_app_dnsforwarder()){
-	tabtitle[11] = new Array("", "<#menu5_1_1#>");
-}
-if (found_app_shadowsocks()){
-	tabtitle[12] = new Array("", "<#menu5_1_1#>","<#menu5_16_20#>");
-}
-if (found_app_mentohust()){
-	tabtitle[13] = new Array("", "<#menu5_1_1#>","<#menu5_13_log#>");
-}
-if (found_app_adbyby()){
-	tabtitle[14] = new Array("", "<#menu5_20_1#>");
-}
-if (found_app_smartdns()||found_app_adguardhome()){
-	tabtitle[15] = new Array("", "<#menu5_29#>");
-}
+tabtitle[10] = new Array("", "<#menu5_16#>");
+tabtitle[11] = new Array("", "<#menu5_24#>");
+tabtitle[12] = new Array("", "<#menu5_32#>");
 
-if (found_app_aliddns()||found_app_zerotier()||found_app_ddnsto()||found_app_wireguard()){
-	tabtitle[16] = new Array("", "<#menu5_30#>");
+if (found_app_shadowsocks()){
+	tabtitle[10] = new Array("", "<#menu5_16#>");
+}else{
+	if (found_SSR_URL_Analysis()){
+		tabtitle[10] = new Array("", "<#menu5_16_44#>");
+	}
 }
-if (found_app_aldriver()){
-	tabtitle[17] = new Array("", "<#menu5_36#>");
+if (found_app_smartdns()){
+	tabtitle[11] = new Array("", "<#menu5_24#>");
+}else{
+	if (found_app_adguardhome()){
+		tabtitle[11] = new Array("", "<#menu5_25#>");
+	}
 }
-if (found_app_sqm()){
-	tabtitle[18] = new Array("", "QoS限速");
-}
-if (found_app_frp()){
-	tabtitle[19] = new Array("", "<#menu5_25#>");
+if (found_app_zerotier()){
+	tabtitle[12] = new Array("", "<#menu5_32#>");
 }
 
 //Level 3 Tab title
-
+var tablink = new Array(13);
 tablink[0] = new Array("", "Advanced_Wireless2g_Content.asp", "Advanced_WGuest2g_Content.asp", "Advanced_WMode2g_Content.asp", "Advanced_ACL2g_Content.asp", "Advanced_WSecurity2g_Content.asp", "Advanced_WAdvanced2g_Content.asp");
 tablink[1] = new Array("", "Advanced_Wireless_Content.asp", "Advanced_WGuest_Content.asp", "Advanced_WMode_Content.asp", "Advanced_ACL_Content.asp", "Advanced_WSecurity_Content.asp", "Advanced_WAdvanced_Content.asp");
 tablink[2] = new Array("", "Advanced_LAN_Content.asp", "Advanced_DHCP_Content.asp", "Advanced_GWStaticRoute_Content.asp", "Advanced_IPTV_Content.asp", "Advanced_Switch_Content.asp", "Advanced_WOL_Content.asp");
@@ -439,168 +490,52 @@ tablink[6] = new Array("", "Advanced_System_Content.asp", "Advanced_Services_Con
 tablink[7] = new Array("", "Advanced_Tweaks_Content.asp", "Advanced_Scripts_Content.asp", "Advanced_InetDetect_Content.asp");
 tablink[8] = new Array("", "Main_WStatus2g_Content.asp", "Main_WStatus_Content.asp", "", "", "", "", "", "", "", "");
 tablink[9] = new Array("", "Main_LogStatus_Content.asp", "Main_DHCPStatus_Content.asp", "Main_IPTStatus_Content.asp", "Main_RouteStatus_Content.asp", "Main_CTStatus_Content.asp");
-if (found_app_scutclient()){
-	scutclient_array = new Array("", "scutclient.asp", "scutclient_log.asp");
-	tablink[10] = (scutclient_array);
-}
-if (found_app_dnsforwarder()){
-	dns_forwarder_array = new Array("", "dns-forwarder.asp");
-	tablink[11] = (dns_forwarder_array);
-}
+tablink[10] = new Array("", "Shadowsocks.asp");
+tablink[11] = new Array("", "Advanced_smartdns.asp");
+tablink[12] = new Array("", "Advanced_zerotier.asp");
+
 if (found_app_shadowsocks()){
-	shadowsocks_array = new Array("","Shadowsocks.asp","Shadowsocks_log.asp");
-	tablink[12] = (shadowsocks_array);
+	shadowsocks_array = new Array("", "Shadowsocks.asp");
+	tablink[10] = (shadowsocks_array);
+}else if (found_SSR_URL_Analysis()){
+	ssrurl_array = new Array("","SSR_URL_Analysis.asp");
+	tablink[10] = (ssrurl_array);
 }
-if (found_app_mentohust()){
-	mentohust_array = new Array("","mentohust.asp","mentohust_log.asp");
-	tablink[13] = (mentohust_array);
-}
-if (found_app_adbyby()){
-	ad_array = new Array("","Advanced_adbyby.asp");
-	tablink[14] = (ad_array);
-}
+
 if (found_app_smartdns()){
 	smartdns_array = new Array("","Advanced_smartdns.asp");
-	tablink[15] = (smartdns_array);
+	tablink[11] = (smartdns_array);
 }else if (found_app_adguardhome()){
 	adg_array = new Array("","Advanced_adguardhome.asp");
-	tablink[15] = (adg_array);
+	tablink[11] = (adg_array);
 }
-if (found_app_aliddns()){
-	aliddns_array = new Array("","Advanced_aliddns.asp");
-	tablink[16] = (aliddns_array);
-}else if (found_app_zerotier()){
+
+if (found_app_zerotier()){
 	zerotier_array = new Array("","Advanced_zerotier.asp");
-	tablink[16] = (zerotier_array);
-}else if (found_app_ddnsto()){
-	ddnsto_array = new Array("","Advanced_ddnsto.asp");
-	tablink[16] = (ddnsto_array);
-}else if (found_app_wireguard()){
-	wireguard_array = new Array("","Advanced_wireguard.asp");
-	tablink[16] = (wireguard_array);
+	tablink[12] = (zerotier_array);
 }
-if (found_app_aldriver()){
-	aldriver_arry = new Array("","Advanced_aliyundrive.asp");
-	tablink[17] = (aldriver_arry);
-}
-if (found_app_sqm()){
-	sqm_array = new Array("","Advanced_SQM.asp");
-	tablink[18] = (sqm_array);
-}
-if (found_app_frp()){
-	frp_array = new Array("","Advanced_frp.asp");
-	tablink[19] = (frp_array);
-	tabtitle[9].push('<#menu5_25_1#>');
-	tablink[9].push('Advanced_frp_log.asp');
-}
-
 //Level 2 Menu
-menuL2_title = new Array(20)
-menuL2_title = new Array("", "<#menu5_11#>", "<#menu5_12#>", "<#menu5_2#>", "<#menu5_3#>", "<#menu5_5#>", "<#menu5_4#>", "<#menu5_6#>", "<#menu5_10#>", "<#menu5_9#>", "<#menu5_7#>");
-if (found_app_scutclient()){
-	menuL2_title.push("<#menu5_13#>");
-} else menuL2_title.push("");
+menuL2_title = new Array("", "<#menu5_11#>", "<#menu5_12#>", "<#menu5_2#>", "<#menu5_3#>", "<#menu5_5#>", "<#menu5_4#>", "<#menu5_6#>", "<#menu5_10#>", "<#menu5_9#>", "<#menu5_7#>", "<#menu5_16#>", "<#menu5_24#>", "<#menu5_32#>");
 
-if (found_app_dnsforwarder()){
-	menuL2_title.push("<#menu5_15#>");
-} else menuL2_title.push("");
+menuL2_link  = new Array("", tablink[0][1], tablink[1][1], tablink[2][1], tablink[3][1], tablink[4][1], tablink[5][1], tablink[6][1], tablink[7][1], support_2g_radio() ? tablink[8][1] : "Main_EStatus_Content.asp", tablink[9][1], tablink[10][1], tablink[11][1], tablink[12][1]);
 
 if (found_app_shadowsocks()){
-	menuL2_title.push("<#menu5_16#>");
-} else menuL2_title.push("");
-
-if (found_app_mentohust()){
-	menuL2_title.push("mentohust");
-} else menuL2_title.push("");
-
-if (found_app_adbyby()){
-	menuL2_title.push("<#menu5_20#>");
-} else menuL2_title.push("");
-
-if (found_app_smartdns()||found_app_adguardhome()){
-	menuL2_title.push("<#menu5_29#>");
-} else menuL2_title.push("");
-
-if (found_app_aliddns()||found_app_zerotier()||found_app_ddnsto()||found_app_wireguard()){
-	menuL2_title.push("<#menu5_30#>");
-} else menuL2_title.push("");
-
-if (found_app_aldriver()){
-	menuL2_title.push("<#menu5_36#>");
-} else menuL2_title.push("");
-
-if (found_app_sqm()){
-	menuL2_title.push("QoS限速");
-} else menuL2_title.push("");
-
-if (found_app_frp()){
-	menuL2_title.push("<#menu5_25#>");
-} else menuL2_title.push("");
-
-menuL2_link  = new Array("", tablink[0][1], tablink[1][1], tablink[2][1], tablink[3][1], tablink[4][1], tablink[5][1], tablink[6][1], tablink[7][1], support_2g_radio() ? tablink[8][1] : "Main_EStatus_Content.asp", tablink[9][1]);
-if (found_app_scutclient()){
-	menuL2_link.push(scutclient_array[1]);
+	menuL2_link.push(tablink[10][1]);
+} else if (found_SSR_URL_Analysis()){
+	menuL2_title.push("ssrurl_array[1]");
 } else menuL2_link.push("");
-
-if (found_app_dnsforwarder()){
-	menuL2_link.push(dns_forwarder_array[1]);
-} else menuL2_link.push("");
-
-if (found_app_shadowsocks()){
-	menuL2_link.push(shadowsocks_array[1]);
-} else menuL2_link.push("");
-
-if (found_app_mentohust()){
-	menuL2_link.push(mentohust_array[1]);
-} else menuL2_link.push("");
-
-if (found_app_adbyby()){
-	menuL2_link.push(ad_array[1]);
-}  else menuL2_link.push("");
-
 if (found_app_smartdns()){
-	menuL2_link.push(smartdns_array[1]);
+	menuL2_link.push(tablink[11][1]);
 } else if (found_app_adguardhome()){
-	menuL2_link.push(adg_array[1]);
+	menuL2_title.push("adg_array[1]");
 } else menuL2_link.push("");
-
-if (found_app_aliddns()){
-	menuL2_link.push(aliddns_array[1]);
-} else if (found_app_zerotier()){
-	menuL2_link.push(zerotier_array[1]);
-} else if (found_app_ddnsto()){
-	menuL2_link.push(ddnsto_array[1]);
-} else if (found_app_wireguard()){
-	menuL2_link.push(wireguard_array[1]);
+if (found_app_zerotier()){
+	menuL2_link.push(tablink[12][1]);
 } else menuL2_link.push("");
-
-if (found_app_aldriver()){
-	menuL2_link.push(aldriver_arry[1]);
-} else menuL2_link.push("");
-
-if (found_app_sqm()){
-	menuL2_link.push(sqm_array[1]);
-} else menuL2_link.push("");
-
-if (found_app_frp()){
-	menuL2_link.push(frp_array[1]);
-} else menuL2_link.push("");
-
 //Level 1 Menu in Gateway, Router mode
 menuL1_title = new Array("", "<#menu1#>", "", "<#menu2#>", "<#menu6#>", "<#menu4#>", "<#menu5_8#>", "<#menu5#>");
 menuL1_link = new Array("", "index.asp", "", "vpnsrv.asp", "vpncli.asp", "Main_TrafficMonitor_realtime.asp", "Advanced_System_Info.asp", "as.asp");
 menuL1_icon = new Array("", "icon-home", "icon-hdd", "icon-retweet", "icon-globe", "icon-tasks", "icon-random", "icon-wrench");
-
-if (!found_app_vpnsvr()) {
-	menuL1_title[3] = '';
-	menuL1_link[3] = '';
-	menuL1_icon[3] = '';
-}
-if (!found_app_vpncli()) {
-	menuL1_title[4] = '';
-	menuL1_link[4] = '';
-	menuL1_icon[4] = '';
-}
 
 function show_menu(L1, L2, L3){
 	var i;
@@ -626,7 +561,11 @@ function show_menu(L1, L2, L3){
 		menuL2_title[4] = "";
 		menuL2_link[5] = "";  //remove Firewall
 		menuL2_title[5] = "";
-		
+		menuL1_link[3] = "";  //remove VPN svr
+		menuL1_title[3] = "";
+		menuL1_link[4] = "";  //remove VPN cli
+		menuL1_title[4] = "";
+
 		if (lan_proto == '1'){
 			tabtitle[2].splice(2,1);
 			tablink[2].splice(2,1);
@@ -741,7 +680,7 @@ function show_footer(){
 	footer_code = '<div align="center" class="bottom-image"></div>\n';
 	footer_code +='<div align="center" class="copyright"><#footer_copyright_desc#></div>\n';
 	footer_code +='<div align="center">\n';
-	footer_code +='  <span>Highcharts by Torstein Hønsi & <a href="http://www.highcharts.com">Highsoft</a></span></br>\n';
+	footer_code +='  <span>Highcharts by Torstein Honsi & <a href="http://www.highcharts.com">Highsoft</a></span></br>\n';
 	footer_code +='  <span>Big icons designed by <a href="http://www.freepik.com">Freepik</a></br></span>\n';
 	footer_code +='  <span>Non-Commercial Use Only</span></br>\n';
 	footer_code +='</div>\n';
@@ -792,8 +731,8 @@ function show_time(){
 	JS_timeObj.setTime(systime_millsec); // Add millsec to it.
 	JS_timeObj3 = JS_timeObj.toString();
 	JS_timeObj3 = checkTime(JS_timeObj.getHours()) + ":" +
-			checkTime(JS_timeObj.getMinutes()) + ":" +
-			checkTime(JS_timeObj.getSeconds());
+	checkTime(JS_timeObj.getMinutes()) + ":" +
+	checkTime(JS_timeObj.getSeconds());
 	$('systemtime').innerHTML ="<a href='/Advanced_System_Content.asp'>" + JS_timeObj3 + "</a>";
 	systime_millsec += 1000;
 	stime_ID = setTimeout("show_time();", 1000);
@@ -807,7 +746,6 @@ function checkTime(i){
 
 function show_loading_obj(){
 	var code = '';
-
 	code += '<center><div id="loadingBlock" class="loadingBlock">';
 	code += '<div class="container-fluid">';
 	code += '<div class="well" style="background-color: #212121; width: 60%;">';
@@ -816,7 +754,6 @@ function show_loading_obj(){
 	code += '</div>';
 	code += '</div>';
 	code += '</div></center>';
-
 	$("Loading").innerHTML = code;
 	id_check_status = setTimeout('hideLoading();', 3000);
 }
@@ -824,18 +761,14 @@ function show_loading_obj(){
 function submit_language(){
 	if($("select_lang").value != $("preferred_lang").value){
 		showLoading();
-		
 		with(document.titleForm){
 			action = "/start_apply.htm";
-			
 			if(location.pathname == "/")
 				current_page.value = "/index.asp";
 			else
 				current_page.value = location.pathname;
-			
 			preferred_lang.value = $("select_lang").value;
 			flag.value = "set_language";
-			
 			submit();
 		}
 	}
@@ -958,10 +891,8 @@ function $(){
 		var element = arguments[i];
 	if(typeof element == 'string')
 		element = document.getElementById(element);
-		
 		if(arguments.length == 1)
 			return element;
-		
 		elements.push(element);
 	}
 
@@ -983,7 +914,6 @@ function getElementsByName_iefix(tag, name){
 
 	for(var i = 0, targetObjs_length = 0; i < tagObjs.length; ++i){
 		objsName = tagObjs[i].getAttribute("name");
-		
 		if(objsName && objsName.indexOf(name) == 0){
 			targetObjs[targetObjs_length] = tagObjs[i];
 			++targetObjs_length;
@@ -1007,7 +937,6 @@ function getElementsByClassName_iefix(tag, name){
 			objsName = tagObjs[i].getAttribute("class");
 		else
 			objsName = tagObjs[i].getAttribute("className");
-		
 		if(objsName == name){
 			targetObjs[targetObjs_length] = tagObjs[i];
 			++targetObjs_length;
@@ -1029,7 +958,6 @@ function showhtmlspace(ori_str){
 	while((tail_num = head.indexOf(" ")) >= 0){
 		str += head.substring(0, tail_num);
 		str += "&nbsp;";
-		
 		head = head.substr(tail_num+1, head.length-(tail_num+1));
 	}
 	str += head;
@@ -1044,7 +972,6 @@ function showhtmland(ori_str){
 	while((tail_num = head.indexOf("&")) >= 0){
 		str += head.substring(0, tail_num);
 		str += "&amp;";
-		
 		head = head.substr(tail_num+1, head.length-(tail_num+1));
 	}
 	str += head;
@@ -1065,31 +992,25 @@ function validate_string(string_obj, flag){
 	if(string_obj.value.charAt(0) == '"'){
 		if(flag != "noalert")
 			alert('<#JS_validstr1#> ["]');
-		
 		string_obj.value = "";
 		string_obj.focus();
-		
 		return false;
 	}
 	else{
 		invalid_char = "";
-		
 		for(var i = 0; i < string_obj.value.length; ++i){
 			if(string_obj.value.charAt(i) < ' ' || string_obj.value.charAt(i) > '~'){
 				invalid_char = invalid_char+string_obj.value.charAt(i);
 			}
 		}
-		
 		if(invalid_char != ""){
 			if(flag != "noalert")
 				alert("<#JS_validstr2#> '"+invalid_char+"' !");
 			string_obj.value = "";
 			string_obj.focus();
-			
 			return false;
 		}
 	}
-	
 	return true;
 }
 
@@ -1109,7 +1030,6 @@ function validate_psk(psk_obj){
 		psk_obj.value = "00000000";
 		psk_obj.focus();
 		psk_obj.select();
-		
 		return false;
 	}
 	if(psk_length > 64){
@@ -1117,7 +1037,6 @@ function validate_psk(psk_obj){
 		psk_obj.value = psk_obj.value.substring(0, 64);
 		psk_obj.focus();
 		psk_obj.select();
-		
 		return false;
 	}
 	if(psk_length >= 8 && psk_length <= 63 && !validate_string(psk_obj)){
@@ -1125,7 +1044,6 @@ function validate_psk(psk_obj){
 		psk_obj.value = "00000000";
 		psk_obj.focus();
 		psk_obj.select();
-		
 		return false;
 	}
 	if(psk_length == 64 && !validate_hex(psk_obj)){
@@ -1133,7 +1051,6 @@ function validate_psk(psk_obj){
 		psk_obj.value = "00000000";
 		psk_obj.focus();
 		psk_obj.select();
-		
 		return false;
 	}
 	return true;
@@ -1143,10 +1060,8 @@ function checkDuplicateName(newname, targetArray){
 	var existing_string = targetArray.join(',');
 	existing_string = ","+existing_string+",";
 	var newstr = ","+trim(newname)+",";
-	
 	var re = new RegExp(newstr, "gi");
 	var matchArray = existing_string.match(re);
-	
 	if(matchArray != null)
 		return true;
 	else
@@ -1168,7 +1083,6 @@ function refreshpage(seconds){
 function hideLinkTag(){
 	if(document.all){
 		var tagObjs = document.all.tags("a");
-		
 		for(var i = 0; i < tagObjs.length; ++i)
 			tagObjs(i).outerHTML = tagObjs(i).outerHTML.replace(">"," hidefocus=true>");
 	}
@@ -1188,14 +1102,11 @@ function buttonOut(o){	//Lockchou 1206 modified
 function flash_button(){
 	if(navigator.appName.indexOf("Microsoft") < 0)
 		return;
-	
 	var btnObj = getElementsByClassName_iefix("input", "button");
-	
 	for(var i = 0; i < btnObj.length; ++i){
 		btnObj[i].onmouseover = function(){
 				buttonOver(this);
 			};
-		
 		btnObj[i].onmouseout = function(){
 				buttonOut(this);
 			};
@@ -1210,7 +1121,6 @@ function no_flash_button(){
 
 	for(var i = 0; i < btnObj.length; ++i){
 		btnObj[i].onmouseover = "";
-		
 		btnObj[i].onmouseout = "";
 	}
 }
@@ -1270,138 +1180,138 @@ function inputCtrl(obj, flag){
 
 // add eagle23
 jQuery(document).ready(function(){
-    var $j = jQuery.noConflict();
+	var $j = jQuery.noConflict();
 
-    $j("#logo").click(function(){
-        location.href = '/';
-    });
+	$j("#logo").click(function(){
+		location.href = '/';
+	});
 
-    // tabindex navigation
-    $j(function(){
-        var tabindex = 1;
-        $j('input,select').each(function() {
-            if (this.type != "hidden"  && this.type != 'radio') {
-                var $input = $j(this);
-                $input.attr("tabindex", tabindex);
-                tabindex++;
-            }
-        });
-    });
+	// tabindex navigation
+	$j(function(){
+		var tabindex = 1;
+		$j('input,select').each(function() {
+			if (this.type != "hidden"  && this.type != 'radio') {
+				var $input = $j(this);
+				$input.attr("tabindex", tabindex);
+				tabindex++;
+			}
+		});
+	});
 
-    var idFindSyslogPanel = setInterval(function(){
-        if(is_mobile || log_float == '0'){
-            clearInterval(idFindSyslogPanel);
-        }else if($j('.syslog_panel').size() > 0){
-            clearInterval(idFindSyslogPanel);
+	var idFindSyslogPanel = setInterval(function(){
+		if(is_mobile || log_float == '0'){
+			clearInterval(idFindSyslogPanel);
+		}else if($j('.syslog_panel').size() > 0){
+			clearInterval(idFindSyslogPanel);
 
-            var offsetLeft = $j('.wrapper').offset().left;
-            $j('.syslog_panel').css({opacity: 1});
-            $j('.syslog_panel').tabSlideOut({
-                tabHandle: '.handle',
-                imageHeight: '20px',
-                imageWidth: '62px',
-                tabLocation: 'top',
-                speed: 300,
-                action: 'click',
-                topPos: '400px',
-                leftPos: (offsetLeft+5)+'px',
-                fixedPosition: true
-            });
+			var offsetLeft = $j('.wrapper').offset().left;
+			$j('.syslog_panel').css({opacity: 1});
+			$j('.syslog_panel').tabSlideOut({
+				tabHandle: '.handle',
+				imageHeight: '20px',
+				imageWidth: '62px',
+				tabLocation: 'top',
+				speed: 300,
+				action: 'click',
+				topPos: '400px',
+				leftPos: (offsetLeft+5)+'px',
+				fixedPosition: true
+			});
 
-            setLogData();
-            showClockLogArea();
-        }
-    }, 100);
+			setLogData();
+			showClockLogArea();
+		}
+	}, 100);
 });
 
 // fix for ie
 String.prototype.nl2br = function(){
-    return this.replace(/\n/g, "\n\r");
+	return this.replace(/\n/g, "\n\r");
 }
 
 function setLogStamp(mt){
-    if(is_mobile || log_float == '0')
-        return;
+	if(is_mobile || log_float == '0')
+		return;
 
-    var $j = jQuery.noConflict();
+	var $j = jQuery.noConflict();
 
-    if(isLocalStorageAvailable())
-        log_stamp = localStorage.getItem('syslog_stamp');
-    if(log_stamp == null)
-        log_stamp = 0;
+	if(isLocalStorageAvailable())
+		log_stamp = localStorage.getItem('syslog_stamp');
+	if(log_stamp == null)
+		log_stamp = 0;
 
-    if (log_stamp != mt){
-        setToLocalStorage('syslog_stamp', mt);
-        if (log_stamp != 0){
-            setLogData();
-            if(!$j('.syslog_panel').hasClass('open')){
-                var tabText = 'Log <span class="label label-important">!</span>';
-                $j(".log_text").html(tabText);
-            }
-        }
-        log_stamp = mt;
-    }
+	if (log_stamp != mt){
+		setToLocalStorage('syslog_stamp', mt);
+		if (log_stamp != 0){
+			setLogData();
+			if(!$j('.syslog_panel').hasClass('open')){
+				var tabText = 'Log <span class="label label-important">!</span>';
+				$j(".log_text").html(tabText);
+			}
+		}
+		log_stamp = mt;
+	}
 }
 
 function setLogData(){
-    var $j = jQuery.noConflict();
-    $j.get('/log_content.asp', function(data){
-        // fix for ie
-        if($j.browser.msie && !is_ie11p)
-            data = data.nl2br();
-        if($j("#log_area").val() == ''){
-            $j("#log_area").text(data);
-            $j("#log_area").prop('scrollTop', $j("#log_area").prop('scrollHeight'));
-            $j("#scrATop").val($j("#log_area").prop('scrollTop'));
-        }else{
-            var scrMaxTop = $j("#log_area").prop('scrollHeight')
-            var scrTop = $j("#log_area").prop('scrollTop');
-            $j("#log_area").text(data);
-            var scrITop = scrMaxTop - scrTop;
-            if($j("#scrATop").val() == scrTop || scrITop < 629){
-                $j("#log_area").prop('scrollTop', scrMaxTop);
-                $j("#scrATop").val($j("#log_area").prop('scrollTop'));
-            }else{
-                $j("#log_area").prop('scrollTop', scrTop);
-            }
-        }
-    });
+	var $j = jQuery.noConflict();
+		$j.get('/log_content.asp', function(data){
+			// fix for ie
+			if($j.browser.msie && !is_ie11p)
+				data = data.nl2br();
+			if($j("#log_area").val() == ''){
+				$j("#log_area").text(data);
+				$j("#log_area").prop('scrollTop', $j("#log_area").prop('scrollHeight'));
+				$j("#scrATop").val($j("#log_area").prop('scrollTop'));
+			}else{
+				var scrMaxTop = $j("#log_area").prop('scrollHeight')
+				var scrTop = $j("#log_area").prop('scrollTop');
+				$j("#log_area").text(data);
+				var scrITop = scrMaxTop - scrTop;
+				if($j("#scrATop").val() == scrTop || scrITop < 629){
+					$j("#log_area").prop('scrollTop', scrMaxTop);
+					$j("#scrATop").val($j("#log_area").prop('scrollTop'));
+				}else{
+					$j("#log_area").prop('scrollTop', scrTop);
+				}
+			}
+		});
 }
 
 function showClockLogArea(){
-    if(jQuery('#system_time').size() == 0){
-        JS_timeObj.setTime(systime_millsec);
-        systime_millsec += 1000;
+	if(jQuery('#system_time').size() == 0){
+		JS_timeObj.setTime(systime_millsec);
+		systime_millsec += 1000;
 
-        JS_timeObj2 = JS_timeObj.toString();
-        JS_timeObj2 = JS_timeObj2.substring(0,3) + ", " +
-        JS_timeObj2.substring(4,10) + "  " +
-        checkTime(JS_timeObj.getHours()) + ":" +
-        checkTime(JS_timeObj.getMinutes()) + ":" +
-        checkTime(JS_timeObj.getSeconds()) + "  " +
-        JS_timeObj.getFullYear() + " GMT" + timezone;
-    }
-    jQuery("#system_time_log_area").html(JS_timeObj2);
-    setTimeout("showClockLogArea()", 1000);
+		JS_timeObj2 = JS_timeObj.toString();
+		JS_timeObj2 = JS_timeObj2.substring(0,3) + ", " +
+		JS_timeObj2.substring(4,10) + "  " +
+		checkTime(JS_timeObj.getHours()) + ":" +
+		checkTime(JS_timeObj.getMinutes()) + ":" +
+		checkTime(JS_timeObj.getSeconds()) + "  " +
+		JS_timeObj.getFullYear() + " GMT" + timezone;
+	}
+	jQuery("#system_time_log_area").html(JS_timeObj2);
+	setTimeout("showClockLogArea()", 1000);
 }
 
 function onCompleteSlideOutLogArea(){
-    var idTimeout = setTimeout(function(){
-        clearTimeout(idTimeout);
-        jQuery(".log_text").html('Log');
-    }, 1500);
+	var idTimeout = setTimeout(function(){
+		clearTimeout(idTimeout);
+		jQuery(".log_text").html('Log');
+	}, 1500);
 }
 
 function passwordShowHide(id){
-    var obj = $j('#'+id);
-    var changeTo = (obj.attr('type') == 'password') ? 'text' : 'password';
-    if ($j.browser.msie && parseInt($j.browser.version, 10) < 9){
-        var marker = $j('<span />').insertBefore('#'+id);
-        obj.detach().attr('type', changeTo).insertAfter(marker);
-        marker.remove();
-    }else{
-        document.getElementById(id).type = changeTo;
-    }
+	var obj = $j('#'+id);
+	var changeTo = (obj.attr('type') == 'password') ? 'text' : 'password';
+	if ($j.browser.msie && parseInt($j.browser.version, 10) < 9){
+		var marker = $j('<span />').insertBefore('#'+id);
+		obj.detach().attr('type', changeTo).insertAfter(marker);
+		marker.remove();
+	}else{
+		document.getElementById(id).type = changeTo;
+	}
 }
 
 /**
@@ -1413,11 +1323,11 @@ function passwordShowHide(id){
  * @return void
  */
 function isLocalStorageAvailable(){
-    try {
-        return 'localStorage' in window && window['localStorage'] !== null;
-    } catch (e) {
-        return false;
-    }
+	try {
+		return 'localStorage' in window && window['localStorage'] !== null;
+	} catch (e) {
+		return false;
+	}
 }
 
 /**
@@ -1426,14 +1336,14 @@ function isLocalStorageAvailable(){
  * @param value mixed
  */
 function setToLocalStorage(name, value){
-    if(isLocalStorageAvailable()){
-        try {
-            localStorage.setItem(name, value);
-        } catch (e) {
-            if (e == QUOTA_EXCEEDED_ERR) {
-            }
-        }
-    }
+	if(isLocalStorageAvailable()){
+		try {
+			localStorage.setItem(name, value);
+		} catch (e) {
+			if (e == QUOTA_EXCEEDED_ERR) {
+			}
+		}
+	}
 }
 
 /**
@@ -1442,9 +1352,9 @@ function setToLocalStorage(name, value){
  * @return mixed
  */
 function getFromLocalStorage(name){
-    if(isLocalStorageAvailable()){
-        return localStorage.getItem(name);
-    }
+	if(isLocalStorageAvailable()){
+		return localStorage.getItem(name);
+	}
 }
 
 /**
@@ -1453,188 +1363,186 @@ function getFromLocalStorage(name){
  * @return void
  */
 function removeFromLocalStorage(name){
-    if(isLocalStorageAvailable()){
-        localStorage.removeItem(name);
-    }
+	if(isLocalStorageAvailable()){
+		localStorage.removeItem(name);
+	}
 }
 
 (function($){
-    var $j = $.noConflict();
-    $j.fn.tabSlideOut = function(callerSettings){
-        var settings =  $j.extend({
-            tabHandle: '.handle',
-            speed: 300,
-            action: 'click',
-            tabLocation: 'left',
-            topPos: '200px',
-            leftPos: '20px',
-            fixedPosition: false,
-            positioning: 'absolute',
-            pathToTabImage: null,
-            imageHeight: null,
-            imageWidth: null
-        }, callerSettings||{});
+	var $j = $.noConflict();
+	$j.fn.tabSlideOut = function(callerSettings){
+		var settings =  $j.extend({
+			tabHandle: '.handle',
+			speed: 300,
+			action: 'click',
+			tabLocation: 'left',
+			topPos: '200px',
+			leftPos: '20px',
+			fixedPosition: false,
+			positioning: 'absolute',
+			pathToTabImage: null,
+			imageHeight: null,
+			imageWidth: null
+		}, callerSettings||{});
 
-        settings.tabHandle =  $j(settings.tabHandle);
-        var obj = this;
-        if (settings.fixedPosition === true) {
-            settings.positioning = 'fixed';
-        } else {
-            settings.positioning = 'absolute';
-        }
+		settings.tabHandle =  $j(settings.tabHandle);
+		var obj = this;
+		if (settings.fixedPosition === true) {
+			settings.positioning = 'fixed';
+		} else {
+			settings.positioning = 'absolute';
+		}
 
-        //ie6 doesn't do well with the fixed option
-        if (document.all && !window.opera && !window.XMLHttpRequest) {
-            settings.positioning = 'absolute';
-        }
+		//ie6 doesn't do well with the fixed option
+		if (document.all && !window.opera && !window.XMLHttpRequest) {
+			settings.positioning = 'absolute';
+		}
 
-        //set initial tabHandle css
-        settings.tabHandle.css({
-            'display': 'block',
-            'width' : settings.imageWidth,
-            'height': settings.imageHeight,
-            //'textIndent' : '-99999px',
-            //'background' : 'url('+settings.pathToTabImage+') no-repeat',
-            'outline' : 'none',
-            'position' : 'absolute',
-            'border-radius': '0px 0px 4px 4px',
-            'background-color': '#f5f5f5',
-            'border-left': '1px solid #ddd',
-            'border-right': '1px solid #ddd',
-            'border-bottom': '1px solid #ddd'
-        });
+		//set initial tabHandle css
+		settings.tabHandle.css({
+			'display': 'block',
+			'width' : settings.imageWidth,
+			'height': settings.imageHeight,
+			//'textIndent' : '-99999px',
+			//'background' : 'url('+settings.pathToTabImage+') no-repeat',
+			'outline' : 'none',
+			'position' : 'absolute',
+			'border-radius': '0px 0px 4px 4px',
+			'background-color': '#f5f5f5',
+			'border-left': '1px solid #ddd',
+			'border-right': '1px solid #ddd',
+			'border-bottom': '1px solid #ddd'
+		});
 
-        obj.css({
-            'line-height' : '1',
-            'position' : settings.positioning
-        });
+		obj.css({
+			'line-height' : '1',
+			'position' : settings.positioning
+		});
 
-        var properties = {
-            containerWidth: parseInt(obj.outerWidth(), 10) + 'px',
-            containerHeight: parseInt(obj.outerHeight(), 10) + 'px',
-            tabWidth: parseInt(settings.tabHandle.outerWidth(), 10) + 'px',
-            tabHeight: parseInt(settings.tabHandle.outerHeight(), 10) + 'px'
-        };
+		var properties = {
+			containerWidth: parseInt(obj.outerWidth(), 10) + 'px',
+			containerHeight: parseInt(obj.outerHeight(), 10) + 'px',
+			tabWidth: parseInt(settings.tabHandle.outerWidth(), 10) + 'px',
+			tabHeight: parseInt(settings.tabHandle.outerHeight(), 10) + 'px'
+		};
 
-        //set calculated css
-        if(settings.tabLocation === 'top' || settings.tabLocation === 'bottom') {
-            obj.css({'left' : settings.leftPos});
-            settings.tabHandle.css({'right' : -1});
-        }
+		//set calculated css
+		if(settings.tabLocation === 'top' || settings.tabLocation === 'bottom') {
+			obj.css({'left' : settings.leftPos});
+			settings.tabHandle.css({'right' : -1});
+		}
 
-        if(settings.tabLocation === 'top') {
-            obj.css({'top' : '-' + properties.containerHeight});
-            settings.tabHandle.css({'bottom' : '-' + properties.tabHeight});
-        }
+		if(settings.tabLocation === 'top') {
+			obj.css({'top' : '-' + properties.containerHeight});
+			settings.tabHandle.css({'bottom' : '-' + properties.tabHeight});
+		}
 
-        if(settings.tabLocation === 'bottom') {
-            obj.css({'bottom' : '-' + properties.containerHeight, 'position' : 'fixed'});
-            settings.tabHandle.css({'top' : '-' + properties.tabHeight});
+		if(settings.tabLocation === 'bottom') {
+			obj.css({'bottom' : '-' + properties.containerHeight, 'position' : 'fixed'});
+			settings.tabHandle.css({'top' : '-' + properties.tabHeight});
+		}
 
-        }
+		if(settings.tabLocation === 'left' || settings.tabLocation === 'right') {
+			obj.css({
+				'height' : properties.containerHeight,
+				'top' : settings.topPos
+			});
 
-        if(settings.tabLocation === 'left' || settings.tabLocation === 'right') {
-            obj.css({
-                'height' : properties.containerHeight,
-                'top' : settings.topPos
-            });
+			settings.tabHandle.css({'top' : 0});
+		}
 
-            settings.tabHandle.css({'top' : 0});
-        }
+		if(settings.tabLocation === 'left') {
+			obj.css({ 'left': '-' + properties.containerWidth});
+			settings.tabHandle.css({'right' : '-' + properties.tabWidth});
+		}
 
-        if(settings.tabLocation === 'left') {
-            obj.css({ 'left': '-' + properties.containerWidth});
-            settings.tabHandle.css({'right' : '-' + properties.tabWidth});
-        }
+		if(settings.tabLocation === 'right') {
+			obj.css({ 'right': '-' + properties.containerWidth});
+			settings.tabHandle.css({'left' : '-' + properties.tabWidth});
+			$j('html').css('overflow-x', 'hidden');
+		}
 
-        if(settings.tabLocation === 'right') {
-            obj.css({ 'right': '-' + properties.containerWidth});
-            settings.tabHandle.css({'left' : '-' + properties.tabWidth});
+		//functions for animation events
 
-            $j('html').css('overflow-x', 'hidden');
-        }
+		settings.tabHandle.click(function(event){
+			event.preventDefault();
+		});
 
-        //functions for animation events
+		var slideIn = function() {
 
-        settings.tabHandle.click(function(event){
-            event.preventDefault();
-        });
+			if (settings.tabLocation === 'top') {
+				obj.animate({top:'-' + properties.containerHeight}, settings.speed).removeClass('open');
+			} else if (settings.tabLocation === 'left') {
+				obj.animate({left: '-' + properties.containerWidth}, settings.speed).removeClass('open');
+			} else if (settings.tabLocation === 'right') {
+				obj.animate({right: '-' + properties.containerWidth}, settings.speed).removeClass('open');
+			} else if (settings.tabLocation === 'bottom') {
+				obj.animate({bottom: '-' + properties.containerHeight}, settings.speed).removeClass('open');
+			}
+		};
 
-        var slideIn = function() {
+		var slideOut = function() {
 
-            if (settings.tabLocation === 'top') {
-                obj.animate({top:'-' + properties.containerHeight}, settings.speed).removeClass('open');
-            } else if (settings.tabLocation === 'left') {
-                obj.animate({left: '-' + properties.containerWidth}, settings.speed).removeClass('open');
-            } else if (settings.tabLocation === 'right') {
-                obj.animate({right: '-' + properties.containerWidth}, settings.speed).removeClass('open');
-            } else if (settings.tabLocation === 'bottom') {
-                obj.animate({bottom: '-' + properties.containerHeight}, settings.speed).removeClass('open');
-            }
+			if (settings.tabLocation == 'top') {
+				obj.animate({top:'-3px'},  settings.speed, onCompleteSlideOutLogArea()).addClass('open');
+			} else if (settings.tabLocation == 'left') {
+				obj.animate({left:'-3px'},  settings.speed, onCompleteSlideOutLogArea()).addClass('open');
+			} else if (settings.tabLocation == 'right') {
+				obj.animate({right:'-3px'},  settings.speed, onCompleteSlideOutLogArea()).addClass('open');
+			} else if (settings.tabLocation == 'bottom') {
+				obj.animate({bottom:'-3px'},  settings.speed, onCompleteSlideOutLogArea()).addClass('open');
+			}
+		};
 
-        };
+		var clickScreenToClose = function() {
+			obj.click(function(event){
+				event.stopPropagation();
+			});
 
-        var slideOut = function() {
+			$j(document).click(function(){
+				slideIn();
+			});
+		};
 
-            if (settings.tabLocation == 'top') {
-                obj.animate({top:'-3px'},  settings.speed, onCompleteSlideOutLogArea()).addClass('open');
-            } else if (settings.tabLocation == 'left') {
-                obj.animate({left:'-3px'},  settings.speed, onCompleteSlideOutLogArea()).addClass('open');
-            } else if (settings.tabLocation == 'right') {
-                obj.animate({right:'-3px'},  settings.speed, onCompleteSlideOutLogArea()).addClass('open');
-            } else if (settings.tabLocation == 'bottom') {
-                obj.animate({bottom:'-3px'},  settings.speed, onCompleteSlideOutLogArea()).addClass('open');
-            }
-        };
+		var clickAction = function(){
+			settings.tabHandle.click(function(event){
+				if (obj.hasClass('open')) {
+					slideIn();
+				} else {
+					slideOut();
+				}
+			});
 
-        var clickScreenToClose = function() {
-            obj.click(function(event){
-                event.stopPropagation();
-            });
+			clickScreenToClose();
+		};
 
-            $j(document).click(function(){
-                slideIn();
-            });
-        };
+		var hoverAction = function(){
+			obj.hover(
+				function(){
+					slideOut();
+				},
 
-        var clickAction = function(){
-            settings.tabHandle.click(function(event){
-                if (obj.hasClass('open')) {
-                    slideIn();
-                } else {
-                    slideOut();
-                }
-            });
+				function(){
+					slideIn();
+				});
 
-            clickScreenToClose();
-        };
+			settings.tabHandle.click(function(event){
+				if (obj.hasClass('open')) {
+					slideIn();
+				}
+			});
+			clickScreenToClose();
+		};
 
-        var hoverAction = function(){
-            obj.hover(
-                function(){
-                    slideOut();
-                },
+		//choose which type of action to bind
+		if (settings.action === 'click') {
+			clickAction();
+		}
 
-                function(){
-                    slideIn();
-                });
+		if (settings.action === 'hover') {
+			hoverAction();
+		}
+	};
 
-            settings.tabHandle.click(function(event){
-                if (obj.hasClass('open')) {
-                    slideIn();
-                }
-            });
-            clickScreenToClose();
-
-        };
-
-        //choose which type of action to bind
-        if (settings.action === 'click') {
-            clickAction();
-        }
-
-        if (settings.action === 'hover') {
-            hoverAction();
-        }
-    };
 })(jQuery);
+

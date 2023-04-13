@@ -29,7 +29,6 @@ $j(document).ready(function() {
 	init_itoggle('lan_dhcpd_x');
 	init_itoggle('dhcp_static_x', change_dhcp_static_enabled);
 	init_itoggle('dhcp_static_arp');
-	init_itoggle('dhcp_filter_aaa');
 });
 
 </script>
@@ -85,11 +84,11 @@ function initial(){
 function applyRule(){
 	if(validForm()){
 		showLoading();
-		
+
 		document.form.action_mode.value = " Restart ";
 		document.form.current_page.value = "/Advanced_DHCP_Content.asp";
 		document.form.next_page.value = "";
-		
+
 		document.form.submit();
 	}
 }
@@ -210,13 +209,13 @@ function setClientMAC(num){
 function showLANIPList(){
 	var code = "";
 	var show_name = "";
-	
+
 	for(var i = 0; i < clients_info.length ; i++){
 		if(clients_info[i][0] && clients_info[i][0].length > 20)
 			show_name = clients_info[i][0].substring(0, 18) + "..";
 		else
 			show_name = clients_info[i][0];
-		
+
 		if(clients_info[i][2]){
 			code += '<a href="javascript:void(0)"><div onclick="setClientMAC('+i+');"><strong>'+clients_info[i][1]+'</strong>';
 			code += ' ['+clients_info[i][2]+']';
@@ -227,7 +226,7 @@ function showLANIPList(){
 	}
 	if (code == "")
 		code = '<div style="text-align: center;" onclick="hideClients_Block();"><#Nodata#></div>';
-	code +='<!--[if lte IE 6.5]><iframe class="hackiframe2"></iframe><![endif]-->';	
+	code +='<!--[if lte IE 6.5]><iframe class="hackiframe2"></iframe><![endif]-->';
 	$("ClientList_Block").innerHTML = code;
 }
 
@@ -499,24 +498,6 @@ function changeBgColor(obj, num){
                                     <table width="100%" align="center" cellpadding="4" cellspacing="0" class="table">
                                         <tr>
                                             <th colspan="2" style="background-color: #E3E3E3;"><#t2Advanced#></th>
-					 </tr>
-										<tr>
-                                            <th width="50%"><a class="help_tooltip" href="javascript:void(0);" onmouseover="openTooltip(this,5,13);">禁止解析IPv6 DNS记录</a></th>
-                                            <td>
-                                                <div class="main_itoggle">
-                                                    <div id="dhcp_filter_aaa_on_of">
-                                                        <input type="checkbox" id="dhcp_filter_aaa_fake" <% nvram_match_x("", "dhcp_filter_aaa", "1", "value=1 checked"); %><% nvram_match_x("", "dhcp_filter_aaa", "0", "value=0"); %>>
-                                                    </div>
-                                                </div>
-
-                                                <div style="position: absolute; margin-left: -10000px;">
-                                                    <input type="radio" value="1" name="dhcp_filter_aaa" id="dhcp_filter_aaa_1" <% nvram_match_x("", "dhcp_filter_aaa", "1", "checked"); %> /><#checkbox_Yes#>
-                                                    <input type="radio" value="0" name="dhcp_filter_aaa" id="dhcp_filter_aaa_0" <% nvram_match_x("", "dhcp_filter_aaa", "0", "checked"); %> /><#checkbox_No#>
-                                                </div>
-                                            </td>
-                                        </tr>
-										<tr>
-                                        
                                         </tr>
                                         <tr>
                                             <th width="50%"><#DHCP_Verbose#></th>
@@ -531,14 +512,16 @@ function changeBgColor(obj, num){
                                         </tr>
                                         <tr>
                                             <td colspan="2">
+						<span class="icon-hand-right"></span>
                                                 <a href="javascript:spoiler_toggle('spoiler_conf')"><span><#CustomConf#> "dnsmasq.conf"</span></a>
                                                 <div id="spoiler_conf" style="display:none;">
-                                                    <textarea rows="16" wrap="off" spellcheck="false" maxlength="4096" class="span12" name="dnsmasq.dnsmasq.conf" style="font-family:'Courier New'; font-size:12px;"><% nvram_dump("dnsmasq.dnsmasq.conf",""); %></textarea>
+                                                    <textarea rows="16" wrap="off" spellcheck="false" maxlength="16384" class="span12" name="dnsmasq.dnsmasq.conf" style="font-family:'Courier New'; font-size:12px;"><% nvram_dump("dnsmasq.dnsmasq.conf",""); %></textarea>
                                                 </div>
                                             </td>
                                         </tr>
                                         <tr id="row_dservers">
                                             <td colspan="2">
+						<span class="icon-hand-right"></span>
                                                 <a href="javascript:spoiler_toggle('spoiler_dservers')"><span><#CustomConf#> "dhcp.conf"</span></a>
                                                 <div id="spoiler_dservers" style="display:none;">
                                                     <textarea rows="16" wrap="off" spellcheck="false" maxlength="16384" class="span12" name="dnsmasq.dhcp.conf" style="font-family:'Courier New'; font-size:12px;"><% nvram_dump("dnsmasq.dhcp.conf",""); %></textarea>
@@ -547,9 +530,10 @@ function changeBgColor(obj, num){
                                         </tr>
                                         <tr id="row_hosts">
                                             <td colspan="2" style="padding-bottom: 0px;">
+						<span class="icon-hand-right"></span>
                                                 <a href="javascript:spoiler_toggle('spoiler_hosts')"><span><#CustomConf#> "hosts"</span></a>
                                                 <div id="spoiler_hosts" style="display:none;">
-                                                    <textarea rows="16" wrap="off" spellcheck="false" maxlength="8192" class="span12" name="dnsmasq.hosts" style="font-family:'Courier New'; font-size:12px;"><% nvram_dump("dnsmasq.hosts",""); %></textarea>
+                                                    <textarea rows="16" wrap="off" spellcheck="false" maxlength="88192" class="span12" name="dnsmasq.hosts" style="font-family:'Courier New'; font-size:12px;"><% nvram_dump("dnsmasq.hosts",""); %></textarea>
                                                 </div>
                                             </td>
                                         </tr>
@@ -648,3 +632,4 @@ function changeBgColor(obj, num){
 </div>
 </body>
 </html>
+

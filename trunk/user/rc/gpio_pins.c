@@ -23,7 +23,8 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/ioctl.h>
-
+#include <shutils.h>
+#include <gpioutils.h>
 #include <ralink_gpio.h>
 
 ////////////////////////////////////////////////////////////////////////////////

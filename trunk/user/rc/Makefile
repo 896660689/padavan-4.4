@@ -30,7 +30,6 @@ OBJS  = rc.o init.o auth.o services.o watchdog.o firewall_ex.o common_ex.o
 OBJS += net.o net_lan.o net_wan.o net_wifi.o net_ppp.o services_ex.o rstats.o
 OBJS += ralink.o gpio_pins.o detect_link.o detect_internet.o detect_wan.o
 OBJS += vpn_server.o vpn_client.o
-OBJS += gpio_btn.o btn_action.o
 ifeq ($(CONFIG_FIRMWARE_INCLUDE_OPENVPN),y)
 OBJS += vpn_openvpn.o
 endif
@@ -80,11 +79,11 @@ romfs:
 	cd $(INSTALLDIR) && rm -f init && ln -sf sbin/rc init
 	cd $(INSTALLDIR)/sbin && ln -sf rc init
 	cd $(INSTALLDIR)/sbin && ln -sf rc watchdog
-	cd $(INSTALLDIR)/sbin && ln -sf rc gpio_btn
 	cd $(INSTALLDIR)/sbin && ln -sf rc hotplug
 	cd $(INSTALLDIR)/sbin && ln -sf rc shutdown
 	cd $(INSTALLDIR)/sbin && ln -sf rc halt
 	cd $(INSTALLDIR)/sbin && ln -sf rc reboot
+	cd $(INSTALLDIR)/sbin && ln -sf rc gpio_btn
 	cd $(INSTALLDIR)/sbin && ln -sf rc ddns_updated
 	cd $(INSTALLDIR)/sbin && ln -sf rc ntpc_updated
 	cd $(INSTALLDIR)/sbin && ln -sf rc start_ddns
@@ -207,3 +206,4 @@ ifneq ($(BOARD_NUM_USB_PORTS),1)
 	cd $(INSTALLDIR)/sbin && ln -sf rc ejusb2
 endif
 endif
+

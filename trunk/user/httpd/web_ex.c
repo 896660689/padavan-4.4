@@ -51,10 +51,12 @@
 #include <notify_rc.h>
 #include <rstats.h>
 #include <bin_sem_asus.h>
+#include <gpioutils.h>
 
 #include "common.h"
 #include "nvram_x.h"
 #include "httpd.h"
+#include "dbapi.h"
 
 #define GROUP_FLAG_REFRESH 	0
 #define GROUP_FLAG_DELETE 	1
@@ -73,9 +75,12 @@ static int rt_modified = 0;
 static u64 restart_needed_bits = 0;
 
 static char post_buf[65535] = {0};
+static char post_buf_backup[65535] = {0};
+static char post_json_buf[65535] = {0};
 static char next_host[128] = {0};
 static char SystemCmd[128] = {0};
 static int  group_del_map[MAX_GROUP_COUNT+2];
+extern void unescape(char *s);
 
 extern struct evDesc events_desc[];
 extern int auth_nvram_changed;

@@ -31,6 +31,7 @@
 #include <disk_initial.h>
 #endif
 
+#include <gpioutils.h>
 #include "rc.h"
 #include "switch.h"
 #include "gpio_pins.h"

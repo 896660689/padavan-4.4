@@ -26,6 +26,7 @@
 #include <sys/time.h>
 
 #include "rc.h"
+#include <gpioutils.h>
 
 #define DI_MAX_HOSTS	6
 #define DI_STATUS_INIT	2

@@ -513,12 +513,7 @@ int start_services_once(int is_ap_mode);
 void stop_services(int stopall);
 void stop_services_lan_wan(void);
 void stop_misc(void);
-#if defined(APP_SCUT)
-int is_scutclient_run(void);
-void stop_scutclient(void);
-void start_scutclient(void);
-void restart_scutclient(void);
-#endif
+
 #if defined(APP_MENTOHUST)
 int is_mentohust_run(void);
 void stop_mentohust(void);
@@ -542,15 +537,10 @@ void update_gfwlist(void);
 void update_dlink(void);
 void reset_dlink(void);
 #endif
-#if defined(APP_VLMCSD)
-void stop_vlmcsd(void);
-void start_vlmcsd(void);
-void restart_vlmcsd(void);
-#endif
-#if defined(APP_DNSFORWARDER)
-void stop_dnsforwarder(void);
-void start_dnsforwarder(void);
-void restart_dnsforwarder(void);
+#if defined(APP_WYY)
+void stop_wyy(void);
+void start_wyy(void);
+void restart_wyy(void);
 #endif
 #if defined(APP_ADBYBY)
 void stop_adbyby(void);

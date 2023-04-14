@@ -1122,12 +1122,6 @@ handle_notifications(void)
 			reset_dlink();
 		}
 #endif
-#if defined(APP_VLMCSD)
-		else if (strcmp(entry->d_name, RCN_RESTART_VLMCSD) == 0)
-		{
-			restart_vlmcsd();
-		}
-#endif
 #if defined(APP_ALIDDNS)
 		else if (strcmp(entry->d_name, RCN_RESTART_ALIDDNS) == 0)
 		{
@@ -1191,12 +1185,6 @@ handle_notifications(void)
 		else if (strcmp(entry->d_name, RCN_RESTART_FRP) == 0)
 		{
 			restart_frp();
-		}
-#endif
-#if defined(APP_DNSFORWARDER)
-		else if (strcmp(entry->d_name, RCN_RESTART_DNSFORWARDER) == 0)
-		{
-			restart_dnsforwarder();
 		}
 #endif
 #if defined(APP_SMBD) || defined(APP_NMBD)

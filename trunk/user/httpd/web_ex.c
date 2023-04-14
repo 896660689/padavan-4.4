@@ -2016,9 +2016,6 @@ static int dns2tcp_status_hook(int eid, webs_t wp, int argc, char **argv)
 }
 #endif
 
-
-
-
 #if defined (APP_ADBYBY)
 static int adbyby_action_hook(int eid, webs_t wp, int argc, char **argv)
 {
@@ -2280,11 +2277,6 @@ ej_firmware_caps_hook(int eid, webs_t wp, int argc, char **argv)
 	int found_app_shadowsocks = 1;
 #else
 	int found_app_shadowsocks = 0;
-#endif
-#if defined(APP_ALIDDNS)
-	int found_app_aliddns = 1;
-#else
-	int found_app_aliddns = 0;
 #endif
 #if defined(APP_ADBYBY)
 	int found_app_adbyby = 1;
@@ -2643,8 +2635,51 @@ ej_firmware_caps_hook(int eid, webs_t wp, int argc, char **argv)
 static int
 ej_hardware_pins_hook(int eid, webs_t wp, int argc, char **argv)
 {
-	int leds = search_gpio_led();
-	int btns = search_gpio_btn();
+#if defined (BOARD_GPIO_BTN_WPS)
+	int has_but_wps = 1;
+#else
+	int has_but_wps = 0;
+#endif
+#if defined (BOARD_GPIO_BTN_FN1)
+	int has_but_fn1 = 1;
+#else
+	int has_but_fn1 = 0;
+#endif
+#if defined (BOARD_GPIO_BTN_FN2)
+	int has_but_fn2 = 1;
+#else
+	int has_but_fn2 = 0;
+#endif
+#if defined (BOARD_GPIO_LED_ALL)
+	int has_led_all = 1;
+#else
+	int has_led_all = 0;
+#endif
+#if defined (BOARD_GPIO_LED_WAN)
+	int has_led_wan = 1;
+#else
+	int has_led_wan = 0;
+#endif
+#if defined (BOARD_GPIO_LED_LAN)
+	int has_led_lan = 1;
+#else
+	int has_led_lan = 0;
+#endif
+#if defined (BOARD_GPIO_LED_USB) && defined (USE_USB_SUPPORT)
+	int has_led_usb = 1;
+#else
+	int has_led_usb = 0;
+#endif
+#if defined (BOARD_GPIO_LED_WIFI) || defined (BOARD_GPIO_LED_SW2G) || defined (BOARD_GPIO_LED_SW5G)
+	int has_led_wif = 1;
+#else
+	int has_led_wif = 0;
+#endif
+#if defined (BOARD_GPIO_LED_POWER)
+	int has_led_pwr = 1;
+#else
+	int has_led_pwr = 0;
+#endif
 
 	websWrite(wp,
 		"function support_but_wps() { return %d;}\n"

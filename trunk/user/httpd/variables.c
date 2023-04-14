@@ -721,9 +721,9 @@
 			{"ddns2_user", "", NULL, EVM_RESTART_DDNS },
 			{"ddns2_pass", "", NULL, EVM_RESTART_DDNS },
 			#if defined(APP_ALIDDNS)
-           		 {"aliddns_enable", "", NULL, EVM_RESTART_ALIDDNS },
+           		{"aliddns_enable", "", NULL, EVM_RESTART_ALIDDNS },
 			{"aliddns_interval", "", NULL, EVM_RESTART_ALIDDNS },
-           		 {"aliddns_ttl", "", NULL, EVM_RESTART_ALIDDNS },
+           		{"aliddns_ttl", "", NULL, EVM_RESTART_ALIDDNS },
 			{"aliddns_ak", "", NULL, EVM_RESTART_ALIDDNS },
 			{"aliddns_sk", "", NULL, EVM_RESTART_ALIDDNS },
 			{"aliddns_name", "", NULL, EVM_RESTART_ALIDDNS },
@@ -1185,12 +1185,6 @@
 #if defined(APP_ADBYBY)
 		{"AdbybyConf",		variables_AdbybyConf},
 #endif
-#if defined(APP_SCUT)
-		{"ScutclientConf",		variables_ScutclientConf},
-#endif
-#if defined(APP_MENTOHUST)
-		{"mentohustConf",		variables_mentohustConf},
-#endif
 #if defined(APP_ZEROTIER)
 		{"ZeroConf",		variables_ZeroConf},
 #endif
@@ -1219,7 +1213,7 @@
 		{0,0}
 	};
 #if defined(APP_FRP)
-		{"FrpConf",		variables_FrpConf},
+		{"FrpConf",			variables_FrpConf},
 #endif
 		{"DwebConf",			variables_DwebConf},
 		{"LANGUAGE",			variables_Language},

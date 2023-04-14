@@ -288,6 +288,7 @@ void update_chnroute(void){
 void update_gfwlist(void){
 	eval("/bin/sh","-c","/etc/storage/shadowsocks/update_gfwlist.sh force &");
 }
+#endif
 
 #if defined(APP_ADGUARDHOME)
 void stop_adguardhome(void){
@@ -427,7 +428,7 @@ void restart_wyy(void){
 	stop_wyy();
 	start_wyy();
 }
-#endi
+#endif
 
 #if defined(APP_SMARTDNS)
 void stop_smartdns(void){

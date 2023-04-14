@@ -2017,57 +2017,7 @@ static int dns2tcp_status_hook(int eid, webs_t wp, int argc, char **argv)
 #endif
 
 
-static int shadowsocks_status_hook(int eid, webs_t wp, int argc, char **argv)
-{
-	int ss_status_code = pids("ss-redir");
-	if (ss_status_code == 0){
-		ss_status_code = pids("ssr-redir");
-	}
-	if (ss_status_code == 0){
-		ss_status_code = pids("v2ray");
-	}
-	if (ss_status_code == 0){
-		ss_status_code = pids("trojan");
-	}
-	if (ss_status_code == 0){
-		ss_status_code = pids("ipt2socks");
-	}
-	websWrite(wp, "function shadowsocks_status() { return %d;}\n", ss_status_code);
-	int ss_tunnel_status_code = pids("ss-local");
-	websWrite(wp, "function shadowsocks_tunnel_status() { return %d;}\n", ss_tunnel_status_code);
-	return 0;
-}
 
-static int rules_count_hook(int eid, webs_t wp, int argc, char **argv)
-{
-	FILE *fstream = NULL;
-	char count[8];
-	memset(count, 0, sizeof(count));
-	fstream = popen("cat /etc/storage/chinadns/chnroute.txt |wc -l","r");
-	if(fstream) {
-		fgets(count, sizeof(count), fstream);
-		pclose(fstream);
-	} else {
-		sprintf(count, "%d", 0);
-	}
-	if (strlen(count) > 0)
-		count[strlen(count) - 1] = 0;
-	websWrite(wp, "function chnroute_count() { return '%s';}\n", count);
-#if defined(APP_SHADOWSOCKS)
-	memset(count, 0, sizeof(count));
-	fstream = popen("grep ^server /etc/storage/gfwlist/gfw_list.conf |wc -l","r");
-	if(fstream) {
-		fgets(count, sizeof(count), fstream);
-		pclose(fstream);
-	} else {
-		sprintf(count, "%d", 0);
-	}
-	if (strlen(count) > 0)
-		count[strlen(count) - 1] = 0;
-	websWrite(wp, "function gfwlist_count() { return '%s';}\n", count);
-	return 0;
-}
-#endif
 
 #if defined (APP_ADBYBY)
 static int adbyby_action_hook(int eid, webs_t wp, int argc, char **argv)
@@ -2491,9 +2441,11 @@ ej_firmware_caps_hook(int eid, webs_t wp, int argc, char **argv)
 	int has_switch_type = 10; // RT3052/RT3352/RT5350 Embedded ESW
 #endif
 #endif
-
+#if defined (BOARD_GPIO_BTN_ROUTER) || defined (BOARD_GPIO_BTN_AP)
+	int has_btn_mode = 1;
+#else
 	int has_btn_mode = 0;
-	
+#endif
 #if defined (USE_WID_5G) && (USE_WID_5G==7610 || USE_WID_5G==7612 || USE_WID_5G==7615 || USE_WID_5G==7915)
 	int has_5g_vht = 1;
 #else
@@ -2567,7 +2519,6 @@ ej_firmware_caps_hook(int eid, webs_t wp, int argc, char **argv)
 		"function found_app_sqm() { return %d;}\n"
 		"function found_app_wireguard() { return %d;}\n"
 		"function found_app_xupnpd() { return %d;}\n"
-		"function found_app_mentohust() { return %d;}\n"
 		"function found_app_shadowsocks() { return %d;}\n"
 		"function found_app_adbyby() { return %d;}\n"
 		"function found_app_ddnsto() { return %d;}\n"
@@ -2596,7 +2547,6 @@ ej_firmware_caps_hook(int eid, webs_t wp, int argc, char **argv)
 		found_app_sqm,
 		found_app_wireguard,
 		found_app_xupnpd,
-		found_app_mentohust,
 		found_app_shadowsocks,
 		found_app_adbyby,
 		found_app_ddnsto,

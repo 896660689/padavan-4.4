@@ -4196,9 +4196,6 @@ struct ej_handler ej_handlers[] =
 	{ "frpc_status", frpc_status_hook},
 	{ "frps_status", frps_status_hook},
 #endif
-#if defined (APP_DNSFORWARDER)
-	{ "dnsforwarder_status", dnsforwarder_status_hook},
-#endif
 #if defined (APP_SMARTDNS)
 	{ "smartdns_status", smartdns_status_hook},
 #endif

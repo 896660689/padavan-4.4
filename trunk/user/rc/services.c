@@ -289,6 +289,38 @@ void update_gfwlist(void){
 	eval("/bin/sh","-c","/etc/storage/shadowsocks/update_gfwlist.sh force &");
 }
 
+#if defined(APP_ADGUARDHOME)
+void stop_adguardhome(void){
+	eval("/usr/bin/adguardhome.sh","stop");
+}
+
+void start_adguardhome(void){
+	int adg_mode = nvram_get_int("adg_enable");
+	if ( adg_mode == 1)
+		eval("/usr/bin/adguardhome.sh","start");
+}
+
+void restart_adguardhome(void){
+	stop_adguardhome();
+	start_adguardhome();
+}
+#endif
+
+#if defined(APP_ZEROTIER)
+void stop_zerotier(void){
+	eval("/usr/bin/zerotier.sh","stop");
+}
+
+void start_zerotier(void){
+	int zerotier_enable = nvram_get_int("zerotier_enable");
+	if ( zerotier_enable == 1)
+		eval("/usr/bin/zerotier.sh","start");
+}
+
+void restart_zerotier(void){
+	stop_zerotier();
+	start_zerotier();
+}
 #endif
 
 #if defined(APP_DDNSTO)
@@ -359,23 +391,6 @@ void restart_wireguard(void){
 }
 #endif
 
-#if defined(APP_ZEROTIER)
-void stop_zerotier(void){
-	eval("/usr/bin/zerotier.sh","stop");
-}
-
-void start_zerotier(void){
-	int zerotier_enable = nvram_get_int("zerotier_enable");
-	if ( zerotier_enable == 1)
-		eval("/usr/bin/zerotier.sh","start");
-}
-
-void restart_zerotier(void){
-	stop_zerotier();
-	start_zerotier();
-}
-#endif
-
 #if defined(APP_ADBYBY)
 void stop_adbyby(void){
 	eval("/usr/bin/adbyby.sh","stop");
@@ -412,25 +427,7 @@ void restart_wyy(void){
 	stop_wyy();
 	start_wyy();
 }
-#endif
-
-#if defined(APP_ADGUARDHOME)
-void stop_adguardhome(void){
-	eval("/usr/bin/adguardhome.sh","stop");
-}
-
-void start_adguardhome(void){
-	int adg_mode = nvram_get_int("adg_enable");
-	if ( adg_mode == 1)
-		eval("/usr/bin/adguardhome.sh","start");
-}
-
-void restart_adguardhome(void){
-	stop_adguardhome();
-	start_adguardhome();
-}
-
-#endif
+#endi
 
 #if defined(APP_SMARTDNS)
 void stop_smartdns(void){

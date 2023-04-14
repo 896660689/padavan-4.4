@@ -684,9 +684,6 @@ doSystem("/usr/sbin/skipd -d /etc/storage/db");
 #if defined(APP_SCUT)
 	start_scutclient();
 #endif
-#if defined(APP_DNSFORWARDER)
-	start_dnsforwarder();
-#endif
 #if defined(APP_SHADOWSOCKS)
 	start_ss();
 	start_ss_tunnel();

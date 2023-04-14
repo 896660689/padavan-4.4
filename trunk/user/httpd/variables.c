@@ -1209,9 +1209,6 @@
 #if defined(APP_ADGUARDHOME)
 		{"AdguardHomeConf",		variables_AdguardHomeConf},
 #endif
-		{"LANGUAGE",			variables_Language},
-		{0,0}
-	};
 #if defined(APP_FRP)
 		{"FrpConf",			variables_FrpConf},
 #endif

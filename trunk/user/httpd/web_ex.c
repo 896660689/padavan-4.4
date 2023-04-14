@@ -1942,6 +1942,46 @@ static int shadowsocks_action_hook(int eid, webs_t wp, int argc, char **argv)
 	return 0;
 }
 
+static void
+do_applydb_cgi(char *url, FILE *stream)
+{
+    //applydb_cgi(url, stream);
+	applydb_cgi(stream, NULL, NULL, 0, url, NULL, NULL);
+}
+
+static int db_print(dbclient* client, webs_t wp, char* prefix, char* key, char* value) {
+	websWrite(wp,"o[\"%s\"]=\'%s\';\n", key, value);
+	return 0;
+}
+
+static void
+do_dbconf(char *url, FILE *stream)
+{
+	char *name = NULL;
+	char * delim = ",";
+	char *pattern = websGetVar(wp, "p","");
+	char *dup_pattern = strdup(pattern);
+	char *sepstr = dup_pattern;
+	dbclient client;
+	dbclient_start(&client);
+	if(strstr(sepstr,delim)) {
+		for(name = strsep(&sepstr, delim); name != NULL; name = strsep(&sepstr, delim)) {
+			websWrite(stream,"var db_%s=(function() {\nvar o={};\n", name);
+
+			dbclient_list(&client, name, stream, db_print);
+			websWrite(stream,"return o;\n})();\n" );
+		}
+	} else {
+		name= strdup(pattern);
+		websWrite(stream,"var db_%s=(function() {\nvar o={};\n", name);
+		dbclient_list(&client, name, stream, db_print);
+		websWrite(stream,"return o;\n})();\n" );
+	}
+	free(dup_pattern);
+	dbclient_end(&client);
+}
+#endif
+
 static int shadowsocks_status_hook(int eid, webs_t wp, int argc, char **argv)
 {
 	int ss_status_code = pids("ss-redir");
@@ -2438,11 +2478,9 @@ ej_firmware_caps_hook(int eid, webs_t wp, int argc, char **argv)
 	int has_switch_type = 10; // RT3052/RT3352/RT5350 Embedded ESW
 #endif
 #endif
-#if defined (BOARD_GPIO_BTN_ROUTER) || defined (BOARD_GPIO_BTN_AP)
-	int has_btn_mode = 1;
-#else
+
 	int has_btn_mode = 0;
-#endif
+	
 #if defined (USE_WID_5G) && (USE_WID_5G==7610 || USE_WID_5G==7612 || USE_WID_5G==7615 || USE_WID_5G==7915)
 	int has_5g_vht = 1;
 #else
@@ -3841,6 +3879,12 @@ static char no_cache_IE[] =
 "Cache-Control: no-store, no-cache, must-revalidate\r\n"
 "Pragma: no-cache\r\n"
 "Expires: -1"
+;
+
+static char no_cache_IE7[] =
+"Cache-Control: no-cache\r\n"
+"Pragma: no-cache\r\n"
+"Expires: 0"
 ;
 
 struct mime_handler mime_handlers[] = {

@@ -24,8 +24,7 @@ OPENSSH_ENABLED=n
 DROPBEAR_ENABLED=n
 SAMBA_ENABLED=n
 SHADOWSOCKS_ENABLE=n
-TROJAN_ENABLE=n
-
+FRP_ENABLE=n
 ifneq ($(CONFIG_FIRMWARE_INCLUDE_OPENSSH),y)
 ifeq ($(CONFIG_FIRMWARE_INCLUDE_DROPBEAR),y)
 DROPBEAR_ENABLED=y
@@ -72,9 +71,6 @@ SAMBA_ENABLED=y
 endif
 endif
 
-ifneq ($(filter y,$(CONFIG_FIRMWARE_INCLUDE_SSSERVER) $(CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS)),)
-SHADOWSOCKS_ENABLE=y
-endif
 ifeq ($(filter y,$(CONFIG_FIRMWARE_INCLUDE_REDSOCKS)),y)
 REDSOCKS_ENABLED=y
 endif
@@ -83,15 +79,14 @@ ifneq ($(filter y,$(CONFIG_FIRMWARE_INCLUDE_FRPC) $(CONFIG_FIRMWARE_INCLUDE_FRPS
 FRP_ENABLE=y
 endif
 
-ifneq ($(filter y,$(CONFIG_FIRMWARE_INCLUDE_WING) $(CONFIG_FIRMWARE_INCLUDE_TROJAN)),)
-TROJAN_ENABLE=y
+ifneq ($(filter y,$(CONFIG_FIRMWARE_INCLUDE_SSSERVER) $(CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS)),)
+SHADOWSOCKS_ENABLE=y
 endif
 
 dir_y =
 dir_n =
 dir_  =
-dir_y						+= ralinkiappd
-
+dir_y                      += ralinkiappd
 dir_y						+= busybox
 dir_y						+= iptables
 ifneq ($(CONFIG_WITHOUT_KERNEL),y)
@@ -127,6 +122,10 @@ dir_$(CONFIG_FIRMWARE_INCLUDE_RPL2TP)		+= rp-l2tp
 dir_y						+= lldt
 dir_y						+= scripts
 dir_$(CONFIG_FIRMWARE_INCLUDE_ZEROTIER)		+= zerotier
+dir_$(CONFIG_FIRMWARE_INCLUDE_DDNSTO)	        += ddnsto
+dir_$(CONFIG_FIRMWARE_INCLUDE_ALDRIVER)	        += aliyundrive-webdav
+dir_$(CONFIG_FIRMWARE_INCLUDE_ALIDDNS)		+= aliddns
+dir_$(CONFIG_FIRMWARE_INCLUDE_SQM)		+= sqm-qos
 dir_$(OPENSSH_ENABLED)				+= openssh
 dir_$(DROPBEAR_ENABLED)				+= dropbear
 dir_$(CONFIG_FIRMWARE_INCLUDE_HTOP)		+= htop
@@ -143,7 +142,10 @@ dir_y						+= wireguard
 dir_y						+= wireguard-tools
 endif
 dir_$(SAMBA_ENABLED)				+= samba36
+dir_$(SAMBA_ENABLED)				+= wsdd2
+
 dir_$(CONFIG_FIRMWARE_INCLUDE_TTYD)		+= ttyd
+dir_$(FRP_ENABLE)				+= frp
 dir_$(SHADOWSOCKS_ENABLE)			+= shadowsocks
 dir_$(CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS)	+= chnroute
 dir_$(CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS)	+= dns-forwarder
@@ -153,13 +155,20 @@ dir_$(CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS)	+= dns2tcp
 dir_$(CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS)	+= chinadns-ng
 dir_$(CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS)	+= xray
 dir_$(CONFIG_FIRMWARE_INCLUDE_IPERF3)		+= iperf3
+dir_$(CONFIG_FIRMWARE_INCLUDE_LRZSZ)			+= lrzsz
+dir_$(CONFIG_FIRMWARE_INCLUDE_GDUT_DRCOM)		+= gdut-drcom
+dir_$(CONFIG_FIRMWARE_INCLUDE_DOGCOM)			+= dogcom
+dir_$(CONFIG_FIRMWARE_INCLUDE_MINIEAP)			+= minieap
+dir_$(CONFIG_FIRMWARE_INCLUDE_NJIT_CLIENT)		+= njit-client
+dir_$(CONFIG_FIRMWARE_INCLUDE_xTUN) 			+= xTun
 dir_$(CONFIG_FIRMWARE_INCLUDE_WYY)		+= unblockmusic
 dir_$(CONFIG_FIRMWARE_INCLUDE_SMARTDNS)		+= smartdns
 dir_$(CONFIG_FIRMWARE_INCLUDE_ADGUARDHOME)	+= adguardhome
 dir_$(CONFIG_FIRMWARE_INCLUDE_WING)		+= wing
 dir_$(CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS)	+= ipt2socks
 
-dir_$(CONFIG_FIRMWARE_INCLUDE_REDSOCKS)		+= redsocks
+dir_$(CONFIG_FIRMWARE_INCLUDE_REDSOCKS)	+= redsocks
+dir_$(CONFIG_FIRMWARE_INCLUDE_3PROXY)			+= 3proxy
 
 ifdef CONFIG_BLK_DEV_SD
 dir_$(CONFIG_FIRMWARE_INCLUDE_HDPARM)		+= hdparm

@@ -61,29 +61,6 @@
 			{0,0,0,0}
 		};
 
-	struct variable variables_FirewallConfig_MFList[] = {
-			{"macfilter_list_x", "20", NULL, FALSE},
-			{"macfilter_time_x", "10", NULL, FALSE},
-			{"macfilter_date_x", "10", NULL, FALSE},
-			{0,0,0,0}
-		};
-
-	struct variable variables_RouterConfig_GWStatic[] = {
-			{"sr_ipaddr_x", "17", NULL, FALSE},
-			{"sr_netmask_x", "17", NULL, FALSE},
-			{"sr_gateway_x", "17", NULL, FALSE},
-			{"sr_matric_x", "5", NULL, FALSE},
-			{"sr_if_x", "3", NULL, FALSE},
-			{0,0,0,0}
-		};
-
-	struct variable variables_LANHostConfig_ManualDHCPList[] = {
-			{"dhcp_staticmac_x", "14", NULL, FALSE},
-			{"dhcp_staticip_x", "17", NULL, FALSE},
-			{"dhcp_staticname_x", "24", NULL, FALSE},
-			{0,0,0,0}
-		};
-
 	struct variable variables_PPPConnection_pppoemwanIPList[] = {
 			{"pppoemwan_mac_x", "14", NULL, EVM_RESTART_FIREWALL},
 			{"pppoemwan_ip_x", "17", NULL, EVM_RESTART_FIREWALL},
@@ -743,6 +720,20 @@
 			{"ddns2_hname", "", NULL, EVM_RESTART_DDNS },
 			{"ddns2_user", "", NULL, EVM_RESTART_DDNS },
 			{"ddns2_pass", "", NULL, EVM_RESTART_DDNS },
+			#if defined(APP_ALIDDNS)
+           		 {"aliddns_enable", "", NULL, EVM_RESTART_ALIDDNS },
+			{"aliddns_interval", "", NULL, EVM_RESTART_ALIDDNS },
+           		 {"aliddns_ttl", "", NULL, EVM_RESTART_ALIDDNS },
+			{"aliddns_ak", "", NULL, EVM_RESTART_ALIDDNS },
+			{"aliddns_sk", "", NULL, EVM_RESTART_ALIDDNS },
+			{"aliddns_name", "", NULL, EVM_RESTART_ALIDDNS },
+			{"aliddns_name2", "", NULL, EVM_RESTART_ALIDDNS },
+			{"aliddns_name6", "", NULL, EVM_RESTART_ALIDDNS },
+			{"aliddns_domain", "", NULL, EVM_RESTART_ALIDDNS },
+			{"aliddns_domain2", "", NULL, EVM_RESTART_ALIDDNS },
+			{"aliddns_domain6", "", NULL, EVM_RESTART_ALIDDNS },
+			{"scripts.ddns_script.sh", "File", NULL, EVM_RESTART_ALIDDNS},
+			#endif
 			{"ManualDHCPList", "Group", ARGV((char*)variables_LANHostConfig_ManualDHCPList, "8", "55", "dhcp_staticnum_x"), EVM_RESTART_DHCPD},
 			{"VPNSACLList", "Group", ARGV((char*)variables_LANHostConfig_VPNSACLList, "8", "107", "vpns_num_x"), EVM_RESTART_VPNSVR},
 			{0,0,0,0}
@@ -1224,6 +1215,13 @@
 #if defined(APP_ADGUARDHOME)
 		{"AdguardHomeConf",		variables_AdguardHomeConf},
 #endif
+		{"LANGUAGE",			variables_Language},
+		{0,0}
+	};
+#if defined(APP_FRP)
+		{"FrpConf",		variables_FrpConf},
+#endif
+		{"DwebConf",			variables_DwebConf},
 		{"LANGUAGE",			variables_Language},
 		{0,0}
 	};

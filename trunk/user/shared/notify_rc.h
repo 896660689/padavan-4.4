@@ -65,8 +65,6 @@
 #define RCN_RESTART_CHNROUTE_UPD	"restart_chnroute_upd"
 #define RCN_RESTART_SS_TUNNEL		"restart_ss_tunnel"
 #define RCN_RESTART_GFWLIST_UPD		"restart_gfwlist_upd"
-#define RCN_RESTART_DLINK		"restart_dlink"
-#define RCN_RESTART_REDLINK			"restart_redlink"
 #define RCN_RESTART_ADBYBY			"restart_adbyby"
 #define RCN_RESTART_ALIDDNS			"restart_aliddns"
 #define RCN_RESTART_FRP				"restart_frp"

@@ -615,12 +615,12 @@
 #if BOARD_NUM_ETH_EPHY > 5
 			{"ether_link_lan5", "", NULL, EVM_RESTART_SWITCH_CFG},
 			{"ether_flow_lan5", "", NULL, EVM_RESTART_SWITCH_CFG},
+#endif
 #if BOARD_NUM_ETH_EPHY > 6
 			{"ether_link_lan6", "", NULL, EVM_RESTART_SWITCH_CFG},
 			{"ether_flow_lan6", "", NULL, EVM_RESTART_SWITCH_CFG},
 			{"ether_link_lan7", "", NULL, EVM_RESTART_SWITCH_CFG},
 			{"ether_flow_lan7", "", NULL, EVM_RESTART_SWITCH_CFG},
-#endif
 #endif
 			{"controlrate_unknown_unicast", "", NULL, EVM_RESTART_SWITCH_CFG},
 			{"controlrate_unknown_multicast", "", NULL, EVM_RESTART_SWITCH_CFG},
@@ -1139,7 +1139,7 @@
 #if defined(USE_MT76X2_AP)
 			{"rt_VgaClamp", "", NULL, EVM_RESTART_WIFI2},
 #endif
-#if defined (USE_WID_2G) && (USE_WID_2G==7615 || USE_WID_2G==7915)
+#if defined (USE_WID_2G) && (USE_WID_2G==7615
 			{"rt_turbo_qam", "", NULL, EVM_RESTART_WIFI2},
 #endif
 			{"rt_country_code", "", NULL, EVM_RESTART_WIFI2},
@@ -1274,6 +1274,7 @@
 #if defined(USE_USB_SUPPORT)
 		{EVM_RESTART_SPOOLER,		EVT_RESTART_SPOOLER,		RCN_RESTART_SPOOLER,	0},
 		{EVM_RESTART_HDDTUNE,		EVT_RESTART_HDDTUNE,		RCN_RESTART_HDDTUNE,	0},
+#endif
 #if defined(APP_FTPD)
 		{EVM_RESTART_FTPD,		EVT_RESTART_FTPD,		RCN_RESTART_FTPD,	EVM_RESTART_FIREWALL},
 #endif
@@ -1294,7 +1295,6 @@
 #endif
 #if defined(APP_ARIA)
 		{EVM_RESTART_ARIA,		EVT_RESTART_ARIA,		RCN_RESTART_ARIA,	EVM_RESTART_FIREWALL},
-#endif
 #endif
 #if defined(APP_TTYD)
 		{EVM_RESTART_TTYD,		EVT_RESTART_TTYD,		RCN_RESTART_TTYD,	0},

@@ -21,7 +21,7 @@ sed -i 's/CONFIG_FIRMWARE_INCLUDE_SRELAY=y/CONFIG_FIRMWARE_INCLUDE_SRELAY=n/g' .
 ##以下为插件增减选项,y为集成,n为不集成,请根据自己路由的FLASH大小选择,切勿超大小,不然固件刷入后会无法启动
 ##此插件选项只在本地编译的时候才会生效
 
-echo "CONFIG_FIRMWARE_INCLUDE_SQM=n" >> .config #SQM
+echo "CONFIG_FIRMWARE_INCLUDE_SQM=y" >> .config #SQM
 
 #CPU超频
 echo "CONFIG_FIRMWARE_INCLUDE_OC=n" >> .config #CPU超频开关

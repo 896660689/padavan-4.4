@@ -98,10 +98,11 @@ typedef u_int8_t u8;
 #define EVM_RESTART_SS_TUNNEL		(1ULL << 52)
 #define EVM_RESTART_SMARTDNS		(1ULL << 53)
 #define EVM_RESTART_ADGUARDHOME		(1ULL << 54)
-#define EVM_RESTART_ZEROTIER		(1ULL << 55)
-#define EVM_RESTART_WIREGUARD		(1ULL << 56)
-#define EVM_RESTART_REBOOT		(1ULL << 57)
-#define EVM_BLOCK_UNSAFE		(1ULL << 58) /* special case */
+#define EVM_RESTART_WYY		    	(1ULL << 55)
+#define EVM_RESTART_ZEROTIER		(1ULL << 56)
+#define EVM_RESTART_WIREGUARD		(1ULL << 57)
+#define EVM_RESTART_REBOOT		(1ULL << 58)
+#define EVM_BLOCK_UNSAFE		(1ULL << 59) /* special case */
 
 
 #define EVT_RESTART_FIREWALL		1
@@ -162,6 +163,7 @@ typedef u_int8_t u8;
 #define EVT_RESTART_SQM		2
 
 #define EVT_RESTART_FRP      		2
+#define EVT_RESTART_WYY		2
 #define EVT_RESTART_SMARTDNS		1
 #define EVT_RESTART_ADGUARDHOME		1
 #define EVT_RESTART_ZEROTIER     	2

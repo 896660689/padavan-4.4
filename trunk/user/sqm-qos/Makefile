@@ -9,3 +9,4 @@ romfs:
 	chmod -R +x scripts/
 	mkdir -p $(INSTALLDIR)/usr/lib/sqm
 	$(ROMFSINST) $(THISDIR)/scripts/ /usr/lib/sqm
+

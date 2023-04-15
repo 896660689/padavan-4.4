@@ -2692,15 +2692,15 @@ ej_hardware_pins_hook(int eid, webs_t wp, int argc, char **argv)
 		"function support_led_wif() { return %d;}\n"
 		"function support_led_pwr() { return %d;}\n"
 		"function support_led_phy() { return %d;}\n",
-		!!(btns & BTN_WPS),
-		!!(btns & BTN_FN1),
-		!!(btns & BTN_FN2),
-		!!(leds & LED_WAN),
-		!!(leds & LED_LAN),
-		!!((leds & LED_USB)),
-		!!((leds & LED_USB) && !(leds & LED_USB2)),
-		!!((leds & LED_WIFI) || (leds & LED_SW2G) || (leds & LED_SW5G)),
-		!!(leds & LED_PWR),
+		has_but_wps,
+		has_but_fn1,
+		has_but_fn2,
+		has_led_all,
+		has_led_wan,
+		has_led_lan,
+		has_led_usb,
+		has_led_wif,
+		has_led_pwr,
 		BOARD_NUM_ETH_LEDS
 	);
 

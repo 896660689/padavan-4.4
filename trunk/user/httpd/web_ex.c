@@ -2555,7 +2555,7 @@ ej_firmware_caps_hook(int eid, webs_t wp, int argc, char **argv)
 		found_app_frp,
 		found_app_zerotier,
 		found_app_smartdns,
-		found_app_adguardhome,
+		found_app_adguardhome
 	);
 
 	websWrite(wp,
@@ -2596,7 +2596,6 @@ ej_firmware_caps_hook(int eid, webs_t wp, int argc, char **argv)
 		"function support_5g_160mhz() { return %d;}\n"
 		"function support_5g_11ax() { return %d;}\n"
 		"function support_2g_11ax() { return %d;}\n",
-
 		has_ipv6,
 		has_ipv6_ppe,
 		has_ipv4_ppe,
@@ -2700,15 +2699,15 @@ ej_hardware_pins_hook(int eid, webs_t wp, int argc, char **argv)
 		"function support_led_wif() { return %d;}\n"
 		"function support_led_pwr() { return %d;}\n"
 		"function support_led_phy() { return %d;}\n",
-		has_but_wps,
-		has_but_fn1,
-		has_but_fn2,
-		has_led_all,
-		has_led_wan,
-		has_led_lan,
-		has_led_usb,
-		has_led_wif,
-		has_led_pwr,
+		!!(btns & BTN_WPS),
+		!!(btns & BTN_FN1),
+		!!(btns & BTN_FN2),
+		!!(leds & LED_WAN),
+		!!(leds & LED_LAN),
+		!!((leds & LED_USB)),
+		!!((leds & LED_USB) && !(leds & LED_USB2)),
+		!!((leds & LED_WIFI) || (leds & LED_SW2G) || (leds & LED_SW5G)),
+		!!(leds & LED_PWR),
 		BOARD_NUM_ETH_LEDS
 	);
 

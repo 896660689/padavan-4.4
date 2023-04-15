@@ -70,7 +70,7 @@ start_instance() {
 	rules
 
 	if [ -n "$moonid" ]; then
-		$PROGCLI -D$config_path orbit $moonid $moonid
+		$PROGCLI -D $config_path orbit $moonid $moonid
 		logger -t "zerotier" "orbit moonid $moonid ok!"
 	fi
 
@@ -201,8 +201,8 @@ creat_moon(){
 			mkdir -p $config_path/moons.d
 		fi
 
-		#服务器加入moon server
-		mv $config_path/*.moon $config_path/moons.d/ >/dev/null 2>&1
+		## 服务器加入moon server
+		mv "$config_path/*.moon" $config_path/moons.d/ >/dev/null 2>&1
 		logger -t "zerotier" "moon节点创建完成"
 
 		zmoonid=`cat moon.json | awk -F "[id]" '/"id"/{print$0}'` >/dev/null 2>&1

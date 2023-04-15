@@ -2046,6 +2046,14 @@ static int adbyby_status_hook(int eid, webs_t wp, int argc, char **argv)
 }
 #endif
 
+#if defined (APP_WYY)
+static int wyy_status_hook(int eid, webs_t wp, int argc, char **argv)
+{
+	int wyy_status_code = pids("wyy");
+	websWrite(wp, "function wyy_status() { return %d;}\n", wyy_status_code);
+	return 0;
+}
+#endif
 
 #if defined (APP_ZEROTIER)
 static int zerotier_status_hook(int eid, webs_t wp, int argc, char **argv)

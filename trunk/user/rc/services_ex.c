@@ -948,26 +948,6 @@ static const struct _inadyn_checkip_url {
 	{ "members.3322.net/dyndns/getip",  "/"    , false  },
 
 static const char *
-inadyn_checkip_url[] = {
-	"",
-	"checkip.dyndns.org /",
-	"checkip.dyndns.org:8245 /",
-	"echo.tzo.com /",
-	"ip.dnsexit.com /",
-	"ip.changeip.com /",
-	"myip.dnsomatic.com /",
-	"ip1.dynupdate.no-ip.com /",
-	"checkip.dns.he.net /",
-	"checkip.zerigo.com /",
-	"checkip.two-dns.de /",
-	"ipv4.wtfismyip.com /text",
-	"ipv4.nsupdate.info /myip",
-	"myip.dtdns.com /",
-	"members.3322.net/dyndns/getip /",
-	"ip.3322.net /",
-};
-
-static const char *
 get_inadyn_system(const char *alias)
 {
 	const struct inadyn_system_t *inadyn;

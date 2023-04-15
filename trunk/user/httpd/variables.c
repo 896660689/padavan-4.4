@@ -721,7 +721,7 @@
 			{"ddns2_hname", "", NULL, EVM_RESTART_DDNS },
 			{"ddns2_user", "", NULL, EVM_RESTART_DDNS },
 			{"ddns2_pass", "", NULL, EVM_RESTART_DDNS },
-			#if defined(APP_ALIDDNS)
+#if defined(APP_ALIDDNS)
            		{"aliddns_enable", "", NULL, EVM_RESTART_ALIDDNS },
 			{"aliddns_interval", "", NULL, EVM_RESTART_ALIDDNS },
            		{"aliddns_ttl", "", NULL, EVM_RESTART_ALIDDNS },
@@ -734,7 +734,7 @@
 			{"aliddns_domain2", "", NULL, EVM_RESTART_ALIDDNS },
 			{"aliddns_domain6", "", NULL, EVM_RESTART_ALIDDNS },
 			{"scripts.ddns_script.sh", "File", NULL, EVM_RESTART_ALIDDNS},
-			#endif
+#endif
 			{"ManualDHCPList", "Group", ARGV((char*)variables_LANHostConfig_ManualDHCPList, "8", "55", "dhcp_staticnum_x"), EVM_RESTART_DHCPD},
 			{"VPNSACLList", "Group", ARGV((char*)variables_LANHostConfig_VPNSACLList, "8", "107", "vpns_num_x"), EVM_RESTART_VPNSVR},
 			{0,0,0,0}
@@ -1021,6 +1021,21 @@
 	};
 #endif
 
+#if defined(APP_WYY)
+	struct variable variables_WyyConf[] = {
+			{"wyy_enable", "", NULL, EVM_RESTART_WYY},
+			{"wyy_apptype", "", NULL, EVM_RESTART_WYY},
+			{"wyy_cloudserver", "", NULL, EVM_RESTART_WYY},
+			{"wyy_musicapptype", "", NULL, EVM_RESTART_WYY},
+			{"wyy_coustom_server", "", NULL, EVM_RESTART_WYY},
+			{"wyy_coustom_music", "", NULL, EVM_RESTART_WYY},
+			{"wyy_flac", "", NULL, EVM_RESTART_WYY},
+			{"wyy_staticnum_x", "", NULL, EVM_RESTART_WYY},
+			{"WIPList", "Group", ARGV((char*)variables_WyyConf_WIPList, "8", "55", "wyy_staticnum_x"), EVM_RESTART_WYY},
+			{0,0,0,0}
+	};
+#endif
+
 #if defined(APP_SMARTDNS)
     struct variable variables_SmartdnsConf[] = {
 	        {"sdns_enable", "", NULL, EVM_RESTART_SMARTDNS},
@@ -1204,6 +1219,9 @@
 #if defined(APP_ZEROTIER)
 		{"ZeroConf",		variables_ZeroConf},
 #endif
+#if defined(APP_WYY)
+		{"WyyConf",		variables_WyyConf},
+#endif
 #if defined(APP_SMARTDNS)
 		{"SmartdnsConf",		variables_SmartdnsConf},
 #endif
@@ -1302,6 +1320,9 @@
 #endif
 #if defined(APP_WIREGUARD)
 		{EVM_RESTART_WIREGUARD,		EVT_RESTART_WIREGUARD,		RCN_RESTART_WIREGUARD,	0},
+#endif
+#if defined(APP_WYY)
+		{EVM_RESTART_WYY,		EVT_RESTART_WYY,		RCN_RESTART_WYY,	0},
 #endif
 #if defined(APP_SMARTDNS)
 		{EVM_RESTART_SMARTDNS,		EVT_RESTART_SMARTDNS,		RCN_RESTART_SMARTDNS,	0},

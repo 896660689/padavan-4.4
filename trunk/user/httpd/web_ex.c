@@ -2000,18 +2000,27 @@ static int dnsforwarder_status_hook(int eid, webs_t wp, int argc, char **argv)
 	websWrite(wp, "function dnsforwarder_status() { return %d;}\n", status_code);
 	return 0;
 }
+#endif
+
+#if defined(APP_SHADOWSOCKS)
 static int pdnsd_status_hook(int eid, webs_t wp, int argc, char **argv)
 {
 	int status_code = pids("pdnsd");
 	websWrite(wp, "function pdnsd_status() { return %d;}\n", status_code);
 	return 0;
 }
+#endif
+
+#if defined(APP_SHADOWSOCKS)
 static int dnsproxy_status_hook(int eid, webs_t wp, int argc, char **argv)
 {
 	int status_code = pids("dnsproxy");
 	websWrite(wp, "function dnsproxy_status() { return %d;}\n", status_code);
 	return 0;
 }
+#endif
+
+#if defined(APP_SHADOWSOCKS)
 static int dns2tcp_status_hook(int eid, webs_t wp, int argc, char **argv)
 {
 	int status_code = pids("dns2tcp");
@@ -2272,15 +2281,15 @@ ej_firmware_caps_hook(int eid, webs_t wp, int argc, char **argv)
 #else
 	int found_app_ttyd = 0;
 #endif
-#if defined(APP_ALIDDNS)
-	int found_app_aliddns = 1;
-#else
-	int found_app_aliddns = 0;
-#endif
 #if defined(APP_SHADOWSOCKS)
 	int found_app_shadowsocks = 1;
 #else
 	int found_app_shadowsocks = 0;
+#endif
+#if defined(APP_ALIDDNS)
+	int found_app_aliddns = 1;
+#else
+	int found_app_aliddns = 0;
 #endif
 #if defined(APP_ADBYBY)
 	int found_app_adbyby = 1;
@@ -2414,11 +2423,7 @@ ej_firmware_caps_hook(int eid, webs_t wp, int argc, char **argv)
 #else
 	int has_openssl_ec = 0;
 #endif
-#if defined (SUPPORT_DDNS_SSL)
 	int has_ddns_ssl = 1;
-#else
-	int has_ddns_ssl = 0;
-#endif
 #if defined (USE_RT3352_MII)
 	int has_inic_mii = 1;
 #else
@@ -2437,11 +2442,7 @@ ej_firmware_caps_hook(int eid, webs_t wp, int argc, char **argv)
 	int has_switch_type = 10; // RT3052/RT3352/RT5350 Embedded ESW
 #endif
 #endif
-#if defined (BOARD_GPIO_BTN_ROUTER) || defined (BOARD_GPIO_BTN_AP)
-	int has_btn_mode = 1;
-#else
 	int has_btn_mode = 0;
-#endif
 #if defined (USE_WID_5G) && (USE_WID_5G==7610 || USE_WID_5G==7612 || USE_WID_5G==7615 || USE_WID_5G==7915)
 	int has_5g_vht = 1;
 #else
@@ -2523,8 +2524,7 @@ ej_firmware_caps_hook(int eid, webs_t wp, int argc, char **argv)
 		"function found_app_frp() { return %d;}\n"
 		"function found_app_zerotier() { return %d;}\n"
 		"function found_app_smartdns() { return %d;}\n"
-		"function found_app_adguardhome() { return %d;}\n"
-		"function found_app_xupnpd() { return %d;}\n",
+		"function found_app_adguardhome() { return %d;}\n",
 		found_utl_hdparm,
 		found_app_ovpn,
 		found_app_dlna,
@@ -2552,7 +2552,6 @@ ej_firmware_caps_hook(int eid, webs_t wp, int argc, char **argv)
 		found_app_zerotier,
 		found_app_smartdns,
 		found_app_adguardhome,
-		found_app_xupnpd
 	);
 
 	websWrite(wp,
@@ -2697,15 +2696,15 @@ ej_hardware_pins_hook(int eid, webs_t wp, int argc, char **argv)
 		"function support_led_wif() { return %d;}\n"
 		"function support_led_pwr() { return %d;}\n"
 		"function support_led_phy() { return %d;}\n",
-		has_but_wps,
-		has_but_fn1,
-		has_but_fn2,
-		has_led_all,
-		has_led_wan,
-		has_led_lan,
-		has_led_usb,
-		has_led_wif,
-		has_led_pwr,
+		!!(btns & BTN_WPS),
+		!!(btns & BTN_FN1),
+		!!(btns & BTN_FN2),
+		!!(leds & LED_WAN),
+		!!(leds & LED_LAN),
+		!!((leds & LED_USB)),
+		!!((leds & LED_USB) && !(leds & LED_USB2)),
+		!!((leds & LED_WIFI) || (leds & LED_SW2G) || (leds & LED_SW5G)),
+		!!(leds & LED_PWR),
 		BOARD_NUM_ETH_LEDS
 	);
 

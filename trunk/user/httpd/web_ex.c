@@ -2641,57 +2641,13 @@ ej_firmware_caps_hook(int eid, webs_t wp, int argc, char **argv)
 static int
 ej_hardware_pins_hook(int eid, webs_t wp, int argc, char **argv)
 {
-#if defined (BOARD_GPIO_BTN_WPS)
-	int has_but_wps = 1;
-#else
-	int has_but_wps = 0;
-#endif
-#if defined (BOARD_GPIO_BTN_FN1)
-	int has_but_fn1 = 1;
-#else
-	int has_but_fn1 = 0;
-#endif
-#if defined (BOARD_GPIO_BTN_FN2)
-	int has_but_fn2 = 1;
-#else
-	int has_but_fn2 = 0;
-#endif
-#if defined (BOARD_GPIO_LED_ALL)
-	int has_led_all = 1;
-#else
-	int has_led_all = 0;
-#endif
-#if defined (BOARD_GPIO_LED_WAN)
-	int has_led_wan = 1;
-#else
-	int has_led_wan = 0;
-#endif
-#if defined (BOARD_GPIO_LED_LAN)
-	int has_led_lan = 1;
-#else
-	int has_led_lan = 0;
-#endif
-#if defined (BOARD_GPIO_LED_USB) && defined (USE_USB_SUPPORT)
-	int has_led_usb = 1;
-#else
-	int has_led_usb = 0;
-#endif
-#if defined (BOARD_GPIO_LED_WIFI) || defined (BOARD_GPIO_LED_SW2G) || defined (BOARD_GPIO_LED_SW5G)
-	int has_led_wif = 1;
-#else
-	int has_led_wif = 0;
-#endif
-#if defined (BOARD_GPIO_LED_POWER)
-	int has_led_pwr = 1;
-#else
-	int has_led_pwr = 0;
-#endif
+	int leds = search_gpio_led();
+	int btns = search_gpio_btn();
 
 	websWrite(wp,
 		"function support_but_wps() { return %d;}\n"
 		"function support_but_fn1() { return %d;}\n"
 		"function support_but_fn2() { return %d;}\n"
-		"function support_led_all() { return %d;}\n"
 		"function support_led_wan() { return %d;}\n"
 		"function support_led_lan() { return %d;}\n"
 		"function support_led_usb() { return %d;}\n"

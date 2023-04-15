@@ -23,10 +23,6 @@ sed -i 's/CONFIG_FIRMWARE_INCLUDE_SRELAY=y/CONFIG_FIRMWARE_INCLUDE_SRELAY=n/g' .
 ##科学上网##
 echo "CONFIG_FIRMWARE_INCLUDE_TROJAN=n" >> .config #集成trojan执行文件  ~1.2M
 
-##内网穿透服务##
-echo "CONFIG_FIRMWARE_INCLUDE_DDNSTO=y" >> .config #ddnsto  ~0.5M
-##内网穿透服务##
-echo "CONFIG_FIRMWARE_INCLUDE_WIREGUARD=y" >>.config #wireguard 10
 fi
 
 ROOTDIR=`pwd`

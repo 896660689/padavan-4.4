@@ -2114,8 +2114,6 @@ static int frps_status_hook(int eid, webs_t wp, int argc, char **argv)
 }
 #endif
 
-
-
 static int update_action_hook(int eid, webs_t wp, int argc, char **argv)
 {
 	char *up_action = websGetVar(wp, "connect_action", "");
@@ -2135,7 +2133,7 @@ ej_detect_internet_hook(int eid, webs_t wp, int argc, char **argv)
 }
 
 static int
-wol_action_hook(int eid, webs_t wp, int argc, char **argv)
+wol_action_hook(int eid, webs_t wp, int argc, char **argv) 
 {
 	int i, sys_result;
 	char *dst_mac, *p1, *p2, *pd;
@@ -2172,8 +2170,8 @@ wol_action_hook(int eid, webs_t wp, int argc, char **argv)
 
 	if (wol_mac[0])
 		sys_result = doSystem("/usr/sbin/ether-wake -b -i %s %s", IFNAME_BR, wol_mac);
-
-	if (sys_result == 0)
+	
+	if (sys_result == 0) 
 	{
 		nvram_set_temp("wol_mac_last", wol_mac);
 		websWrite(wp, "{\"wol_mac\": \"%s\"}", wol_mac);
@@ -2185,7 +2183,7 @@ wol_action_hook(int eid, webs_t wp, int argc, char **argv)
 }
 
 static int
-nf_values_hook(int eid, webs_t wp, int argc, char **argv)
+nf_values_hook(int eid, webs_t wp, int argc, char **argv) 
 {
 	FILE *fp;
 	char nf_count[32];
@@ -4206,6 +4204,7 @@ struct ej_handler ej_handlers[] =
 #if defined (APP_ZEROTIER)
 	{ "zerotier_status", zerotier_status_hook},
 #endif
+	{ "update_action", update_action_hook},
 	{ "openssl_util_hook", openssl_util_hook},
 	{ "openvpn_srv_cert_hook", openvpn_srv_cert_hook},
 	{ "openvpn_cli_cert_hook", openvpn_cli_cert_hook},

@@ -2133,7 +2133,7 @@ ej_detect_internet_hook(int eid, webs_t wp, int argc, char **argv)
 }
 
 static int
-wol_action_hook(int eid, webs_t wp, int argc, char **argv) 
+wol_action_hook(int eid, webs_t wp, int argc, char **argv)
 {
 	int i, sys_result;
 	char *dst_mac, *p1, *p2, *pd;

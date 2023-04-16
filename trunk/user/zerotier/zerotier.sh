@@ -1,14 +1,16 @@
 #!/bin/sh
 #20200426 chongshengB
 #20210410 xumng123
+
+zr_home="/etc/storage/zerotier"
 PROG=/usr/bin/zerotier-one
 PROGCLI=/usr/bin/zerotier-cli
 PROGIDT=/usr/bin/zerotier-idtool
-config_path="/etc/storage/zerotier-one"
-PLANET="/etc/storage/zerotier-one/planet"
+config_path="$zr_home/zerotier-one"
+PLANET="$zr_home/zerotier-one/planet"
 start_instance() {
 	cfg="$1"
-	echo $cfg
+	echo "$cfg"
 	port=""
 	args=""
 	moonid="$(nvram get zerotier_moonid)"
@@ -28,7 +30,7 @@ start_instance() {
 		pf="$config_path/identity.public"
 		$PROGIDT generate "$sf" "$pf"  >/dev/null
 		[ $? -ne 0 ] && return 1
-		secret="$(cat $sf)"
+		secret='$(cat "$sf")'
 		#rm "$sf"
 		nvram set zerotier_secret="$secret"
 		nvram commit
@@ -227,7 +229,7 @@ remove_moon(){
 	fi
 }
 
-case $1 in
+case "$1" in
 start)
 	start_zero
 	;;
@@ -239,3 +241,4 @@ stop)
 	#exit 0
 	;;
 esac
+

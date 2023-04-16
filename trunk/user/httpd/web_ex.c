@@ -2170,8 +2170,8 @@ wol_action_hook(int eid, webs_t wp, int argc, char **argv)
 
 	if (wol_mac[0])
 		sys_result = doSystem("/usr/sbin/ether-wake -b -i %s %s", IFNAME_BR, wol_mac);
-	
-	if (sys_result == 0) 
+
+	if (sys_result == 0)
 	{
 		nvram_set_temp("wol_mac_last", wol_mac);
 		websWrite(wp, "{\"wol_mac\": \"%s\"}", wol_mac);
@@ -2183,7 +2183,7 @@ wol_action_hook(int eid, webs_t wp, int argc, char **argv)
 }
 
 static int
-nf_values_hook(int eid, webs_t wp, int argc, char **argv) 
+nf_values_hook(int eid, webs_t wp, int argc, char **argv)
 {
 	FILE *fp;
 	char nf_count[32];

@@ -26,6 +26,7 @@ romfs:
 	$(ROMFSINST) $(THISDIR)/$(SRC_NAME)/zerotier-one /usr/bin/zerotier-one
 	$(ROMFSINST) $(THISDIR)/zerotier.sh /usr/bin/zerotier.sh
 	$(ROMFSINST) $(THISDIR)/Advanced_zerotier.asp /www/Advanced_zerotier.asp
+	$(ROMFSINST) $(THISDIR)/state.js /www/state.js
 	ln -sf zerotier-one $(ROMFSDIR)/usr/bin/zerotier-cli
 	ln -sf zerotier-one $(ROMFSDIR)/usr/bin/zerotier-idtool
 	cp -fP $(CONFIG_CROSS_COMPILER_ROOT)/mipsel-linux-uclibc/sysroot/lib/libstdc++.so* $(ROMFSDIR)/lib

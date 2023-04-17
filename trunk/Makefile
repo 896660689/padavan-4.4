@@ -19,7 +19,11 @@ include versions.inc
 ifeq ($(CONFIG_WITHOUT_KERNEL),y)
 all: tools unpack_trx libc_only libs_only user_only romfs image
 else
+ifeq ($(CONFIG_FIRMWARE_TYPE_ROOTFS_IN_RAM),y)
+all: tools modules libc_only libs_only user_only romfs linux image
+else
 all: tools linux libc_only libs_only user_only romfs image
+endif
 endif
 ############################################################################
 #

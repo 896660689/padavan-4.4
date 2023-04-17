@@ -587,7 +587,7 @@ function validate_ipaddr_final(o, v) {
                 document.form.wan_netmask.value = "255.0.0.0";
             }
             else if (v == 'lan_ipaddr') {
-                document.form.lan_ipaddr.value = "192.168.1.1";
+                document.form.lan_ipaddr.value = "192.168.2.1";
                 document.form.lan_netmask.value = "255.255.255.0";
             }
             o.focus();
@@ -865,7 +865,7 @@ function validate_portrange(o,v) {
             o.select();
             return false;
         }
-    } // wrong port 
+    } // wrong port
     else {
         if (prev == -2) {
             if (num == 65535) o.value = num;
@@ -1318,4 +1318,35 @@ function showhide_div(e, sh) {
         document.all[e].style.display = status;
     else if (document.layers)
         document.layers[e].display = status;
+}
+
+function removeUselessChars(str) {
+    str = str.replace(/\\/g, "\\\\");
+    str = str.replace(/\n/g, "\\n");
+    str = str.replace(/\r/g, "\\r");
+    str = str.replace(/\t/g, "\\t");
+    str = str.replace(/("")+/g, "\"\"");
+    str = str.replace(/\'/g, "&#39;");
+    str = str.replace(/ /g, "&nbsp;");
+    str = str.replace(/</g, "&lt;");
+    str = str.replace(/>/g, "&gt;");
+    return str;
+}
+
+function decodeSSID(s) {
+    var out, len, i;
+    out = "";
+    len = s.length;
+    i = 2;
+
+    if (s[0] == "0" && s[1] == "x") {
+        while(i < len) {
+            out += "%";
+            out += s[i++];
+            out += s[i++];
+        }
+        return decodeURIComponent(out);
+    }
+
+    return decodeURIComponent(s);
 }

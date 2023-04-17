@@ -52,8 +52,8 @@
 int
 ej_lan_leases(int eid, webs_t wp, int argc, char **argv)
 {
-	/* dnsmasq ex: 43200 00:26:18:57:08:bc 192.168.1.105 mypc-3eaf6880a0 01:00:26:18:57:08:bc */
-	
+	/* dnsmasq ex: 43200 00:26:18:57:08:bc 192.168.2.60 mypc-3eaf6880a0 01:00:26:18:57:08:bc */
+
 	FILE *fp = NULL;
 	int ret = 0;
 	int i;
@@ -64,7 +64,7 @@ ej_lan_leases(int eid, webs_t wp, int argc, char **argv)
 #endif
 
 	ret += websWrite(wp, "IPv4 Address       MAC Address          Host Name\n");
-	//                    192.168.100.100    00:90:F5:XX:XX:XX    Padavan
+	//                    192.168.2.16    00:90:F5:XX:XX:XX    Padavan
 	//                    ffff:ffff:ffff:0001:0000:0000:0000:0001 Padavan
 
 	if (!(fp = fopen("/tmp/dnsmasq.leases", "r")))
@@ -73,10 +73,10 @@ ej_lan_leases(int eid, webs_t wp, int argc, char **argv)
 	while (fgets(buff, sizeof(buff), fp)) {
 		if (sscanf(buff, "%31s %63s %63s %63s %*s", dh_lease, dh_mac, dh_ip, dh_host) != 4)
 			continue;
-		
+
 		if (strcmp(dh_lease, "duid") == 0)
 			continue;
-		
+
 #if defined (USE_IPV6)
 		if (inet_pton(AF_INET6, dh_ip, &addr6) != 0) {
 			ip6_count++;
@@ -84,14 +84,14 @@ ej_lan_leases(int eid, webs_t wp, int argc, char **argv)
 		}
 #endif
 		strcat(dh_lease, " secs");
-		
+
 		if (!dh_host[0])
 			strcpy(dh_host, "*");
-		
+
 		// convert MAC to upper case
 		for (i=0; i<strlen(dh_mac); i++)
 			dh_mac[i] = toupper(dh_mac[i]);
-		
+
 		ret += websWrite(wp, "%-19s", (dh_ip[0]!=0) ? dh_ip : " ");
 		ret += websWrite(wp, "%-21s", (dh_mac[0]!=0) ? dh_mac : " " );
 		ret += websWrite(wp, "%s\n",  dh_host);
@@ -110,18 +110,18 @@ ej_lan_leases(int eid, webs_t wp, int argc, char **argv)
 		while (fgets(buff, sizeof(buff), fp)) {
 			if (sscanf(buff, "%31s %63s %63s %63s %*s", dh_lease, dh_mac, dh_ip, dh_host) != 4)
 				continue;
-			
+
 			if (strcmp(dh_lease, "duid") == 0)
 				continue;
-			
+
 			if (inet_pton(AF_INET6, dh_ip, &addr6) == 0)
 				continue;
-			
+
 			strcat(dh_lease, " secs");
-			
+
 			if (!dh_host[0])
 				strcpy(dh_host, "*");
-			
+
 			ret += websWrite(wp, "%-40s", (dh_ip[0]!=0) ? dh_ip : " ");
 			ret += websWrite(wp, "%s\n",  dh_host);
 		}
@@ -138,14 +138,14 @@ ej_vpns_leases(int eid, webs_t wp, int argc, char **argv)
 	FILE *fp;
 	int ret = 0, i_clients = 0;
 	char ifname[16], addr_l[64], addr_r[64], peer_name[64];
-	
+
 	ret += websWrite(wp, "#  IP Local         IP Remote        Login          NetIf\n");
-	
+
 	if (!(fp = fopen("/tmp/vpns.leases", "r"))) {
 		return ret;
 	}
-	
-	while (fscanf(fp, "%15s %63s %63s %63[^\n]\n", ifname, addr_l, addr_r, peer_name) == 4) 
+
+	while (fscanf(fp, "%15s %63s %63s %63[^\n]\n", ifname, addr_l, addr_r, peer_name) == 4)
 	{
 		i_clients++;
 		ret += websWrite(wp, "%-3u", i_clients);
@@ -155,7 +155,7 @@ ej_vpns_leases(int eid, webs_t wp, int argc, char **argv)
 		ret += websWrite(wp, "%s\n",  ifname);
 	}
 	fclose(fp);
-	
+
 	return ret;
 }
 
@@ -165,7 +165,7 @@ int is_hwnat_loaded()
 	DIR *dir_to_open = NULL;
 	FILE *fp;
 	char offload_val[32];
-	
+
 	dir_to_open = opendir("/sys/module/hw_nat");
 	if (dir_to_open)
 	{
@@ -177,11 +177,11 @@ int is_hwnat_loaded()
 			fclose(fp);
 			if (strlen(offload_val) > 0)
 				offload_val[strlen(offload_val) - 1] = 0; /* get rid of '\n' */
-			
+
 			if (offload_val[0] == 'Y' || offload_val[0] == '1')
 				return 2;
 		}
-		
+
 		return 1;
 	}
 #endif
@@ -205,7 +205,7 @@ ej_nat_table(int eid, webs_t wp, int argc, char **argv)
 	if (sw_mode == 1 || sw_mode == 4) {
 		const char *hwnat_status = "Disabled";
 		int i_loaded = is_hwnat_loaded();
-		
+
 		if (i_loaded == 2)
 #if defined(USE_WWAN_HW_NAT)
 			hwnat_status = "Enabled, IPoE/PPPoE offload [WAN/WWAN]<->[LAN/WLAN]";
@@ -214,7 +214,7 @@ ej_nat_table(int eid, webs_t wp, int argc, char **argv)
 #endif
 		else if (i_loaded == 1)
 			hwnat_status = "Enabled, IPoE/PPPoE offload [WAN]<->[LAN]";
-		
+
 		ret += websWrite(wp, "Hardware NAT/Routing: %s\n", hwnat_status);
 	}
 #endif
@@ -222,7 +222,7 @@ ej_nat_table(int eid, webs_t wp, int argc, char **argv)
 	if (sw_mode == 1) {
 //		ret += websWrite(wp, "Software QoS: %s\n", nvram_match("qos_enable", "1") ? "Enabled": "Disabled");
 		ret += websWrite(wp, "\n");
-		
+
 		ret += websWrite(wp, "Port Forwards List\n");
 		ret += websWrite(wp, "----------------------------------------\n");
 		ret += websWrite(wp, "Source             Proto  Port Range  Redirect to     Local port\n");
@@ -240,27 +240,27 @@ ej_nat_table(int eid, webs_t wp, int argc, char **argv)
 		while (fgets(line, sizeof(line), fp) != NULL) {
 			tmp[0] = 0;
 			if (sscanf(line,
-			    "%15s%*[ \t]"		// target
-			    "%15s%*[ \t]"		// prot
-			    "%*s%*[ \t]"		// opt
-			    "%18s%*[ \t]"		// source
-			    "%18s%*[ \t]"		// destination
-			    "%255[^\n]",		// options
-			    target, proto, src, dst, tmp) < 4)
+				"%15s%*[ \t]"		// target
+				"%15s%*[ \t]"		// prot
+				"%*s%*[ \t]"		// opt
+				"%18s%*[ \t]"		// source
+				"%18s%*[ \t]"		// destination
+				"%255[^\n]",		// options
+				target, proto, src, dst, tmp) < 4)
 				continue;
-			
+
 			if (strcmp(target, "DNAT"))
 				continue;
-			
+
 			for (ptr = proto; *ptr; ptr++)
 				*ptr = toupper(*ptr);
-			
+
 			if (!strcmp(src, "0.0.0.0/0"))
 				strcpy(src, "ALL");
-			
+
 			if (!strcmp(dst, "0.0.0.0/0"))
 				strcpy(dst, "ALL");
-			
+
 			port = host = range = "";
 			ptr = tmp;
 			while ((val = strsep(&ptr, " ")) != NULL) {
@@ -273,7 +273,7 @@ ej_nat_table(int eid, webs_t wp, int argc, char **argv)
 					strsep(&port, ":");
 				}
 			}
-			
+
 			ret += websWrite(wp,
 				"%-18s %-6s %-11s %-15s %-11s\n",
 				src, proto, range, host, port ? : range);
@@ -303,9 +303,9 @@ ej_route_table(int eid, webs_t wp, int argc, char **argv)
 
 	if (!(fp = fopen("/proc/net/route", "r"))) return 0;
 
-	while (fgets(buff, sizeof(buff), fp) != NULL ) 
+	while (fgets(buff, sizeof(buff), fp) != NULL )
 	{
-		if (nl) 
+		if (nl)
 		{
 			int ifl = 0;
 			while (buff[ifl]!=' ' && buff[ifl]!='\t' && buff[ifl]!='\0')
@@ -316,7 +316,7 @@ ej_route_table(int eid, webs_t wp, int argc, char **argv)
 				//error_msg_and_die( "Unsuported kernel route format\n");
 				//continue;
 			}
-			
+
 			ifl = 0;	/* parse flags */
 			if (flgs&1)
 				flags[ifl++]='U';
@@ -332,7 +332,7 @@ ej_route_table(int eid, webs_t wp, int argc, char **argv)
 					inet_ntoa(dest)));
 			strcpy(sgw,    (gw.s_addr==0   ? "*"       :
 					inet_ntoa(gw)));
-			
+
 			ret += websWrite(wp, "%-16s%-16s%-16s%-6s%-6d %-2d %7d %s\n",
 				sdest, sgw, inet_ntoa(mask), flags, metric, ref, use, buff);
 		}
@@ -343,7 +343,7 @@ ej_route_table(int eid, webs_t wp, int argc, char **argv)
 	return ret;
 }
 
-int 
+int
 ej_conntrack_table(int eid, webs_t wp, int argc, char **argv)
 {
 	FILE *fp;
@@ -360,7 +360,7 @@ ej_conntrack_table(int eid, webs_t wp, int argc, char **argv)
 	while (fgets(buff, sizeof(buff), fp) != NULL) {
 		if (sscanf(buff, "%15s %*s %15s", ipv, proto) < 2)
 			continue;
-		
+
 		if (strcmp(proto, "tcp") == 0 || strcmp(proto, "sctp") == 0) {
 			if (sscanf(buff, "%*s %*s %*s %*s %*s %31s src=%63s dst=%63s sport=%7s dport=%7s", state, src, dst, sport, dport) < 5)
 				continue;
@@ -493,91 +493,91 @@ ralink_get_range_info(iwrange *	range, char* buffer, int length)
   /* For new versions, we can check the version directly, for old versions
    * we use magic. 300 bytes is a also magic number, don't touch... */
   if (length < 300)
-    {
-      /* That's v10 or earlier. Ouch ! Let's make a guess...*/
-      range_raw->range.we_version_compiled = 9;
-    }
+	{
+	  /* That's v10 or earlier. Ouch ! Let's make a guess...*/
+	  range_raw->range.we_version_compiled = 9;
+	}
 
   /* Check how it needs to be processed */
   if (range_raw->range.we_version_compiled > 15)
-    {
-      /* This is our native format, that's easy... */
-      /* Copy stuff at the right place, ignore extra */
-      memcpy((char *) range, buffer, sizeof(iwrange));
-    }
+	{
+	  /* This is our native format, that's easy... */
+	  /* Copy stuff at the right place, ignore extra */
+	  memcpy((char *) range, buffer, sizeof(iwrange));
+	}
   else
-    {
-      /* Zero unknown fields */
-      bzero((char *) range, sizeof(struct iw_range));
+	{
+	  /* Zero unknown fields */
+	  bzero((char *) range, sizeof(struct iw_range));
 
-      /* Initial part unmoved */
-      memcpy((char *) range,
-	     buffer,
-	     iwr15_off(num_channels));
-      /* Frequencies pushed futher down towards the end */
-      memcpy((char *) range + iwr_off(num_channels),
-	     buffer + iwr15_off(num_channels),
-	     iwr15_off(sensitivity) - iwr15_off(num_channels));
-      /* This one moved up */
-      memcpy((char *) range + iwr_off(sensitivity),
-	     buffer + iwr15_off(sensitivity),
-	     iwr15_off(num_bitrates) - iwr15_off(sensitivity));
-      /* This one goes after avg_qual */
-      memcpy((char *) range + iwr_off(num_bitrates),
-	     buffer + iwr15_off(num_bitrates),
-	     iwr15_off(min_rts) - iwr15_off(num_bitrates));
-      /* Number of bitrates has changed, put it after */
-      memcpy((char *) range + iwr_off(min_rts),
-	     buffer + iwr15_off(min_rts),
-	     iwr15_off(txpower_capa) - iwr15_off(min_rts));
-      /* Added encoding_login_index, put it after */
-      memcpy((char *) range + iwr_off(txpower_capa),
-	     buffer + iwr15_off(txpower_capa),
-	     iwr15_off(txpower) - iwr15_off(txpower_capa));
-      /* Hum... That's an unexpected glitch. Bummer. */
-      memcpy((char *) range + iwr_off(txpower),
-	     buffer + iwr15_off(txpower),
-	     iwr15_off(avg_qual) - iwr15_off(txpower));
-      /* Avg qual moved up next to max_qual */
-      memcpy((char *) range + iwr_off(avg_qual),
-	     buffer + iwr15_off(avg_qual),
-	     sizeof(struct iw_quality));
-    }
+	  /* Initial part unmoved */
+	  memcpy((char *) range,
+		 buffer,
+		 iwr15_off(num_channels));
+	  /* Frequencies pushed futher down towards the end */
+	  memcpy((char *) range + iwr_off(num_channels),
+		 buffer + iwr15_off(num_channels),
+		 iwr15_off(sensitivity) - iwr15_off(num_channels));
+	  /* This one moved up */
+	  memcpy((char *) range + iwr_off(sensitivity),
+		 buffer + iwr15_off(sensitivity),
+		 iwr15_off(num_bitrates) - iwr15_off(sensitivity));
+	  /* This one goes after avg_qual */
+	  memcpy((char *) range + iwr_off(num_bitrates),
+		 buffer + iwr15_off(num_bitrates),
+		 iwr15_off(min_rts) - iwr15_off(num_bitrates));
+	  /* Number of bitrates has changed, put it after */
+	  memcpy((char *) range + iwr_off(min_rts),
+		 buffer + iwr15_off(min_rts),
+		 iwr15_off(txpower_capa) - iwr15_off(min_rts));
+	  /* Added encoding_login_index, put it after */
+	  memcpy((char *) range + iwr_off(txpower_capa),
+		 buffer + iwr15_off(txpower_capa),
+		 iwr15_off(txpower) - iwr15_off(txpower_capa));
+	  /* Hum... That's an unexpected glitch. Bummer. */
+	  memcpy((char *) range + iwr_off(txpower),
+		 buffer + iwr15_off(txpower),
+		 iwr15_off(avg_qual) - iwr15_off(txpower));
+	  /* Avg qual moved up next to max_qual */
+	  memcpy((char *) range + iwr_off(avg_qual),
+		 buffer + iwr15_off(avg_qual),
+		 sizeof(struct iw_quality));
+	}
 
   /* We are now checking much less than we used to do, because we can
    * accomodate more WE version. But, there are still cases where things
    * will break... */
   if (!iw_ignore_version_sp)
-    {
-      /* We don't like very old version (unfortunately kernel 2.2.X) */
-      if (range->we_version_compiled <= 10)
+	{
+	  /* We don't like very old version (unfortunately kernel 2.2.X) */
+	  if (range->we_version_compiled <= 10)
 	{
 	  fprintf(stderr, "Warning: Driver for device %s has been compiled with an ancient version\n", "raxx");
 	  fprintf(stderr, "of Wireless Extension, while this program support version 11 and later.\n");
 	  fprintf(stderr, "Some things may be broken...\n\n");
 	}
 
-      /* We don't like future versions of WE, because we can't cope with
-       * the unknown */
-      if (range->we_version_compiled > WE_MAX_VERSION)
+	  /* We don't like future versions of WE, because we can't cope with
+	   * the unknown */
+	  if (range->we_version_compiled > WE_MAX_VERSION)
 	{
 	  fprintf(stderr, "Warning: Driver for device %s has been compiled with version %d\n", "raxx", range->we_version_compiled);
 	  fprintf(stderr, "of Wireless Extension, while this program supports up to version %d.\n", WE_VERSION);
 	  fprintf(stderr, "Some things may be broken...\n\n");
 	}
 
-      /* Driver version verification */
-      if ((range->we_version_compiled > 10) &&
+	  /* Driver version verification */
+	  if ((range->we_version_compiled > 10) &&
 	 (range->we_version_compiled < range->we_version_source))
 	{
 	  fprintf(stderr, "Warning: Driver for device %s recommend version %d of Wireless Extension,\n", "raxx", range->we_version_source);
 	  fprintf(stderr, "but has been compiled with version %d, therefore some driver features\n", range->we_version_compiled);
 	  fprintf(stderr, "may not be available...\n\n");
 	}
-      /* Note : we are only trying to catch compile difference, not source.
-       * If the driver source has not been updated to the latest, it doesn't
-       * matter because the new fields are set to zero */
-    }
+	  /* Note : we are only trying to catch compile difference, not source.
+	   * If the driver source has not been updated to the latest, it doesn't
+	   * matter because the new fields are set to zero */
+	}
 
   /* Don't complain twice.
    * In theory, the test apply to each individual driver, but usually
@@ -595,7 +595,7 @@ int
 wl_ioctl(const char *ifname, int cmd, struct iwreq *pwrq)
 {
 	int ret = 0;
- 	int s;
+	int s;
 
 	/* open socket to kernel */
 	if ((s = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
@@ -870,11 +870,11 @@ get_apcli_peer_connected(const char *ifname, struct iwreq *p_wrq)
 	if (wl_ioctl(ifname, SIOCGIWAP, p_wrq) >= 0) {
 		p_wrq->u.ap_addr.sa_family = ARPHRD_ETHER;
 		if (p_wrq->u.ap_addr.sa_data[0] ||
-		    p_wrq->u.ap_addr.sa_data[1] ||
-		    p_wrq->u.ap_addr.sa_data[2] ||
-		    p_wrq->u.ap_addr.sa_data[3] ||
-		    p_wrq->u.ap_addr.sa_data[4] ||
-		    p_wrq->u.ap_addr.sa_data[5] ) {
+			p_wrq->u.ap_addr.sa_data[1] ||
+			p_wrq->u.ap_addr.sa_data[2] ||
+			p_wrq->u.ap_addr.sa_data[3] ||
+			p_wrq->u.ap_addr.sa_data[4] ||
+			p_wrq->u.ap_addr.sa_data[5] ) {
 			return 1;
 		}
 	}
@@ -893,7 +893,7 @@ get_apcli_wds_entry(const char *ifname, RT_802_11_MAC_ENTRY *pme)
 	wrq.u.data.flags = 0;
 
 	if (wl_ioctl(ifname, RTPRIV_IOCTL_GET_MAC_TABLE_STRUCT, &wrq) >= 0 &&
-	    wrq.u.data.length == sizeof(RT_802_11_MAC_ENTRY)) {
+		wrq.u.data.length == sizeof(RT_802_11_MAC_ENTRY)) { //bug with mt7615 driver
 		return 1;
 	}
 
@@ -917,11 +917,7 @@ is_mac_in_sta_list(const unsigned char* p_mac)
 		RT_802_11_MAC_TABLE *mp = (RT_802_11_MAC_TABLE *)wrq.u.data.pointer;
 		for (i = 0; i < mp->Num; i++) {
 			if (memcmp(mp->Entry[i].Addr, p_mac, ETHER_ADDR_LEN) == 0)
-#if defined (BOARD_MT7915_DBDC)
-				return (mp->Entry[i].ApIdx == 2) ? 3 : 4;
-#else
 				return (mp->Entry[i].ApIdx == 0) ? 3 : 4;
-#endif
 		}
 	}
 #endif
@@ -929,10 +925,10 @@ is_mac_in_sta_list(const unsigned char* p_mac)
 #if defined(USE_RT3352_MII)
 	if (nvram_get_int("inic_disable") == 1)
 		return 0;
-	
+
 	if (nvram_get_int("mlme_radio_rt") == 0)
 		return 0;
-	
+
 	/* query rt for authenticated sta list */
 	memset(mac_table_data, 0, sizeof(mac_table_data));
 	wrq.u.data.pointer = mac_table_data;
@@ -1041,7 +1037,7 @@ print_sta_list(webs_t wp, RT_802_11_MAC_TABLE *mp, int num_ss_rx, int ap_idx)
 
 	ret = 0;
 
-#if defined (BOARD_MT7615_DBDC) || (BOARD_MT7915_DBDC)
+#if defined (BOARD_MT7615_DBDC)
 	ret += websWrite(wp, "\nAP %s Stations List\n", (ap_idx == 0 || ap_idx == 2) ? "Main" : "Guest");
 #else
 	ret += websWrite(wp, "\nAP %s Stations List\n", (ap_idx == 0) ? "Main" : "Guest");
@@ -1053,7 +1049,7 @@ print_sta_list(webs_t wp, RT_802_11_MAC_TABLE *mp, int num_ss_rx, int ap_idx)
 	for (i = 0; i < mp->Num; i++) {
 		if ((int)mp->Entry[i].ApIdx != ap_idx)
 			continue;
-		
+
 		hr = mp->Entry[i].ConnectedTime / 3600;
 		min = (mp->Entry[i].ConnectedTime % 3600) / 60;
 		sec = mp->Entry[i].ConnectedTime - hr * 3600 - min * 60;
@@ -1068,7 +1064,7 @@ print_sta_list(webs_t wp, RT_802_11_MAC_TABLE *mp, int num_ss_rx, int ap_idx)
 			if ((int)mp->Entry[i].AvgRssi2 > rssi && mp->Entry[i].AvgRssi2 != 0)
 				rssi = (int)mp->Entry[i].AvgRssi2;
 		}
-		
+
 		ret += websWrite(wp, "%02X:%02X:%02X:%02X:%02X:%02X  %-7s %3s %3d %3s %4s %4s %4dM %4d %3s %02d:%02d:%02d\n",
 				mp->Entry[i].Addr[0], mp->Entry[i].Addr[1], mp->Entry[i].Addr[2],
 				mp->Entry[i].Addr[3], mp->Entry[i].Addr[4], mp->Entry[i].Addr[5],
@@ -1126,7 +1122,7 @@ print_sta_list_inic(webs_t wp, RT_802_11_MAC_TABLE_INIC* mp, int num_ss_rx, int 
 	for (i = 0; i < mp->Num; i++) {
 		if ((int)mp->Entry[i].ApIdx != ap_idx)
 			continue;
-		
+
 		hr = mp->Entry[i].ConnectedTime / 3600;
 		min = (mp->Entry[i].ConnectedTime % 3600) / 60;
 		sec = mp->Entry[i].ConnectedTime - hr * 3600 - min * 60;
@@ -1137,7 +1133,7 @@ print_sta_list_inic(webs_t wp, RT_802_11_MAC_TABLE_INIC* mp, int num_ss_rx, int 
 			if ((int)mp->Entry[i].AvgRssi1 > rssi && mp->Entry[i].AvgRssi1 != 0)
 				rssi = (int)mp->Entry[i].AvgRssi1;
 		}
-		
+
 		ret += websWrite(wp, "%02X:%02X:%02X:%02X:%02X:%02X  %-7s %3s %3d %3s %4s %4s %4dM %4d %3s %02d:%02d:%02d\n",
 				mp->Entry[i].Addr[0], mp->Entry[i].Addr[1], mp->Entry[i].Addr[2],
 				mp->Entry[i].Addr[3], mp->Entry[i].Addr[4], mp->Entry[i].Addr[5],
@@ -1172,7 +1168,7 @@ print_mac_table_inic(webs_t wp, const char *wif_name, int num_ss_rx, int is_gues
 
 	if (wl_ioctl(wif_name, RTPRIV_IOCTL_GET_MAC_TABLE, &wrq) >= 0) {
 		mp = (RT_802_11_MAC_TABLE_INIC*)wrq.u.data.pointer;
-		
+
 		ret += print_sta_list_inic(wp, mp, num_ss_rx, 0);
 		if (is_guest_on)
 			ret += print_sta_list_inic(wp, mp, num_ss_rx, 1);
@@ -1202,8 +1198,6 @@ print_wmode(webs_t wp, unsigned int wmode, unsigned int phy_mode)
 			p += sprintf(p, "/n");
 		if (wmode & WMODE_AC)
 			p += sprintf(p, "/ac");
-		if ((wmode & WMODE_AX_24G) || (wmode & WMODE_AX_5G) || (wmode & WMODE_AX_6G))
-			p += sprintf(p, "/ax");
 		if (p != buf)
 			ret += websWrite(wp, "WPHY Mode\t: 11%s\n", buf+1);
 	} else {
@@ -1290,13 +1284,6 @@ print_mac_table(webs_t wp, const char *wif_name, int num_ss_rx, int is_guest_on)
 		apidx = 2;
 		apidx_guest = 3;
 	}
-#elif defined (BOARD_MT7915_DBDC)
-	int apidx = 2;
-	int apidx_guest = 3;
-	if (!strcmp(wif_name, IFNAME_2G_MAIN)) {
-		apidx = 0;
-		apidx_guest = 1;
-	}
 #endif
 	bzero(mac_table_data, sizeof(mac_table_data));
 	wrq.u.data.pointer = mac_table_data;
@@ -1305,16 +1292,16 @@ print_mac_table(webs_t wp, const char *wif_name, int num_ss_rx, int is_guest_on)
 
 	if (wl_ioctl(wif_name, RTPRIV_IOCTL_GET_MAC_TABLE_STRUCT, &wrq) >= 0) {
 		mp = (RT_802_11_MAC_TABLE*)wrq.u.data.pointer;
-#if defined (BOARD_MT7615_DBDC) || defined (BOARD_MT7915_DBDC)
-		ret += print_sta_list(wp, mp, num_ss_rx, apidx); 
+#if defined (BOARD_MT7615_DBDC)
+		ret += print_sta_list(wp, mp, num_ss_rx, apidx);
 #else
-		ret += print_sta_list(wp, mp, num_ss_rx, 0); 
+		ret += print_sta_list(wp, mp, num_ss_rx, 0);
 #endif
 		if (is_guest_on)
-#if defined (BOARD_MT7615_DBDC) || defined (BOARD_MT7915_DBDC)
-			ret += print_sta_list(wp, mp, num_ss_rx, apidx_guest);
+#if defined (BOARD_MT7615_DBDC)
+		ret += print_sta_list(wp, mp, num_ss_rx, apidx_guest);
 #else
-			ret += print_sta_list(wp, mp, num_ss_rx, 1);
+		ret += print_sta_list(wp, mp, num_ss_rx, 1);
 #endif
 	}
 
@@ -1347,7 +1334,7 @@ print_radio_status(webs_t wp, int is_aband)
 			ret += websWrite(wp, "Radio %s is disabled\n", "5GHz");
 			return ret;
 		}
-		
+
 		wif_ap[0]  = IFNAME_5G_MAIN;
 		wif_ap[1]  = IFNAME_5G_GUEST;
 		wif_wds[0] = IFNAME_5G_WDS0;
@@ -1366,7 +1353,7 @@ print_radio_status(webs_t wp, int is_aband)
 			ret += websWrite(wp, "Radio %s is disabled\n", "2.4GHz");
 			return ret;
 		}
-		
+
 		wif_ap[0]  = IFNAME_2G_MAIN;
 		wif_ap[1]  = IFNAME_2G_GUEST;
 		wif_wds[0] = IFNAME_2G_WDS0;
@@ -1482,7 +1469,7 @@ print_radio_status(webs_t wp, int is_aband)
 
 	if (op_mode == 3 || op_mode == 4) {
 		struct iwreq wrq;
-		
+
 		if (get_apcli_peer_connected(wif_apcli, &wrq)) {
 #if defined(USE_RT3352_MII)
 			if (!is_aband) {
@@ -1497,7 +1484,7 @@ print_radio_status(webs_t wp, int is_aband)
 #endif
 			{
 				RT_802_11_MAC_ENTRY me;
-				
+
 				if (get_apcli_wds_entry(wif_apcli, &me)) {
 					ret += print_apcli_wds_header(wp, "\nAP-Client Connection\n");
 					ret += print_apcli_wds_entry(wp, &me, num_ss_rx);
@@ -1510,13 +1497,13 @@ print_radio_status(webs_t wp, int is_aband)
 
 	if ((op_mode == 1 || op_mode == 2)
 #if defined(USE_RT3352_MII)
-	    && (is_aband)
+		&& (is_aband)
 #endif
-	    ) {
+		) {
 		RT_802_11_MAC_ENTRY me;
-		
+
 		ret += print_apcli_wds_header(wp, "\nWDS Peers\n");
-		
+
 		for (i = 0; i < 4; i++) {
 			if (get_apcli_wds_entry(wif_wds[i], &me))
 				ret += print_apcli_wds_entry(wp, &me, num_ss_rx);
@@ -1549,7 +1536,7 @@ ej_wl_status_2g(int eid, webs_t wp, int argc, char **argv)
 	return print_radio_status(wp, 0);
 }
 
-int 
+int
 ej_wl_auth_list(int eid, webs_t wp, int argc, char **argv)
 {
 	struct iwreq wrq;
@@ -1574,12 +1561,12 @@ ej_wl_auth_list(int eid, webs_t wp, int argc, char **argv)
 				mp->Entry[i].Addr[0], mp->Entry[i].Addr[1],
 				mp->Entry[i].Addr[2], mp->Entry[i].Addr[3],
 				mp->Entry[i].Addr[4], mp->Entry[i].Addr[5]);
-			
+
 			if (firstRow)
 				firstRow = 0;
 			else
 				ret+=websWrite(wp, ", ");
-			
+
 			ret+=websWrite(wp, "\"%s\":%d", mac, get_rssi_from_me(&mp->Entry[i], num_ss_rx));
 		}
 	}
@@ -1605,12 +1592,12 @@ ej_wl_auth_list(int eid, webs_t wp, int argc, char **argv)
 				mp->Entry[i].Addr[0], mp->Entry[i].Addr[1],
 				mp->Entry[i].Addr[2], mp->Entry[i].Addr[3],
 				mp->Entry[i].Addr[4], mp->Entry[i].Addr[5]);
-			
+
 			if (firstRow)
 				firstRow = 0;
 			else
 				ret+=websWrite(wp, ", ");
-			
+
 			ret+=websWrite(wp, "\"%s\":%d", mac, get_rssi_from_me(&mp->Entry[i], num_ss_rx));
 		}
 	}
@@ -1629,12 +1616,12 @@ ej_wl_auth_list(int eid, webs_t wp, int argc, char **argv)
 				mp->Entry[i].Addr[0], mp->Entry[i].Addr[1],
 				mp->Entry[i].Addr[2], mp->Entry[i].Addr[3],
 				mp->Entry[i].Addr[4], mp->Entry[i].Addr[5]);
-			
+
 			if (firstRow)
 				firstRow = 0;
 			else
 				ret+=websWrite(wp, ", ");
-			
+
 			ret+=websWrite(wp, "\"%s\":%d", mac, get_rssi_from_me(&mp->Entry[i], num_ss_rx));
 		}
 	}
@@ -1669,7 +1656,7 @@ ej_wl_scan_5g(int eid, webs_t wp, int argc, char **argv)
 	int len, line_len;
 
 	empty = "[\"\", \"\", \"\", \"\"]";
-	
+
 	#if defined (BOARD_MT7615_DBDC)
 	memset(data, 0, 32);
 	strcpy(data, "ClearSiteSurvey=1");
@@ -1686,8 +1673,8 @@ ej_wl_scan_5g(int eid, webs_t wp, int argc, char **argv)
 	sleep(1);
 #endif
 	memset(data, 0, 32);
-	strcpy(data, "SiteSurvey=1"); 
-	wrq.u.data.length = strlen(data)+1; 
+	strcpy(data, "SiteSurvey=1");
+	wrq.u.data.length = strlen(data)+1;
 	wrq.u.data.pointer = data;
 	wrq.u.data.flags = 0;
 
@@ -1720,7 +1707,7 @@ ej_wl_scan_5g(int eid, webs_t wp, int argc, char **argv)
 	{
 		op = sp = wrq.u.data.pointer+line_len+2; // skip \n+\n
 		len = strlen(op);
-		
+
 		while (*sp && ((len - (sp-op)) >= 0))
 		{
 			memcpy(site_line, sp, line_len);
@@ -1735,20 +1722,20 @@ ej_wl_scan_5g(int eid, webs_t wp, int argc, char **argv)
 			site_ssid[33] = '\0';
 			site_bssid[20] = '\0';
 			site_signal[9] = '\0';
-			
+
 			memset(ssid_str, 0, sizeof(ssid_str));
 			char_to_ascii(ssid_str, trim_r(site_ssid));
-			
+
 			if (!strlen(ssid_str))
 				strcpy(ssid_str, "???");
-			
+
 			if (apCount)
 				retval += websWrite(wp, "%s ", ",");
-			
+
 			retval += websWrite(wp, "[\"%s\", \"%s\", \"%s\", \"%s\"]", ssid_str, trim_r(site_bssid), trim_r(site_chnl), trim_r(site_signal));
-			
+
 //			dbg("%s\n", site_line);
-			
+
 			sp+=line_len+1; // skip \n
 			apCount++;
 		}
@@ -1765,7 +1752,7 @@ ej_wl_scan_5g(int eid, webs_t wp, int argc, char **argv)
 }
 #endif
 
-int 
+int
 ej_wl_scan_2g(int eid, webs_t wp, int argc, char **argv)
 {
 	int retval = 0, apCount = 0;
@@ -1836,7 +1823,7 @@ ej_wl_scan_2g(int eid, webs_t wp, int argc, char **argv)
 	{
 		op = sp = wrq.u.data.pointer+line_len+2; // skip \n+\n
 		len = strlen(op);
-		
+
 		while (*sp && ((len - (sp-op)) >= 0))
 		{
 			memcpy(site_line, sp, line_len);
@@ -1851,20 +1838,20 @@ ej_wl_scan_2g(int eid, webs_t wp, int argc, char **argv)
 			site_ssid[33] = '\0';
 			site_bssid[20] = '\0';
 			site_signal[9] = '\0';
-			
+
 			memset(ssid_str, 0, sizeof(ssid_str));
 			char_to_ascii(ssid_str, trim_r(site_ssid));
-			
+
 			if (!strlen(ssid_str))
 				strcpy(ssid_str, "???");
-			
+
 			if (apCount)
 				retval += websWrite(wp, "%s ", ",");
-			
+
 			retval += websWrite(wp, "[\"%s\", \"%s\", \"%s\", \"%s\"]", ssid_str, trim_r(site_bssid), trim_r(site_chnl), trim_r(site_signal));
-			
+
 //			dbg("%s\n", site_line);
-			
+
 			sp+=line_len+1; // skip \n
 			apCount++;
 		}

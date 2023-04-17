@@ -59,6 +59,7 @@ typedef u_int8_t u8;
 #define EVM_RESTART_WIFI5		(1ULL << 13)
 #define EVM_RESTART_SWITCH_CFG		(1ULL << 14)
 #define EVM_RESTART_SWITCH_VLAN		(1ULL << 15)
+#define EVM_RESTART_SQM			(1ULL << 16)
 #define EVM_RESTART_LAN			(1ULL << 17)
 #define EVM_RESTART_WAN			(1ULL << 18)
 #define EVM_RESTART_IPV6		(1ULL << 19)
@@ -87,25 +88,21 @@ typedef u_int8_t u8;
 #define EVM_RESTART_ARIA		(1ULL << 42)
 #define EVM_RESTART_SCUT		(1ULL << 43)
 #define EVM_RESTART_TTYD		(1ULL << 44)
-#define EVM_RESTART_VLMCSD		(1ULL << 45)
-#define EVM_RESTART_DNSFORWARDER	(1ULL << 47)
-#define EVM_RESTART_SHADOWSOCKS	(1ULL << 48)
-#define EVM_RESTART_SS_TUNNEL		(1ULL << 49)
-#define EVM_RESTART_MENTOHUST		(1ULL << 50)
-#define EVM_RESTART_ADBYBY		    (1ULL << 51)
-#define EVM_RESTART_ALIDDNS		    (1ULL << 52)
-#define EVM_RESTART_FRP		    (1ULL << 53)
-#define EVM_RESTART_SMARTDNS		    (1ULL << 57)
-#define EVM_RESTART_ADGUARDHOME		    (1ULL << 58)
-#define EVM_RESTART_ZEROTIER		    (1ULL << 59)
-#define EVM_RESTART_DDNSTO		    (1ULL << 60)
-#define EVM_RESTART_ALDRIVER		    (1ULL << 61)
-#define EVM_RESTART_WIREGUARD		    (1ULL << 62)
-#define EVM_RESTART_SQM		    (1ULL << 63)
-
-#define EVM_RESTART_REBOOT		(1ULL << 64)
-
-#define EVM_BLOCK_UNSAFE		(1ULL << 65) /* special case */
+#define EVM_RESTART_ALIDDNS		(1ULL << 45)
+#define EVM_RESTART_ALDRIVER		(1ULL << 46)
+#define EVM_RESTART_FRP		    	(1ULL << 47)
+#define EVM_RESTART_DNSFORWARDER	(1ULL << 48)
+#define EVM_RESTART_ADBYBY		(1ULL << 49)
+#define EVM_RESTART_DDNSTO		(1ULL << 50)
+#define EVM_RESTART_SHADOWSOCKS		(1ULL << 51)
+#define EVM_RESTART_SS_TUNNEL		(1ULL << 52)
+#define EVM_RESTART_SMARTDNS		(1ULL << 53)
+#define EVM_RESTART_ADGUARDHOME		(1ULL << 54)
+#define EVM_RESTART_WYY		    	(1ULL << 55)
+#define EVM_RESTART_ZEROTIER		(1ULL << 56)
+#define EVM_RESTART_WIREGUARD		(1ULL << 57)
+#define EVM_RESTART_REBOOT		(1ULL << 58)
+#define EVM_BLOCK_UNSAFE		(1ULL << 59) /* special case */
 
 
 #define EVT_RESTART_FIREWALL		1
@@ -154,23 +151,22 @@ typedef u_int8_t u8;
 #define EVT_RESTART_ITUNES		2
 #define EVT_RESTART_TRMD		3
 #define EVT_RESTART_ARIA		3
-#define EVT_RESTART_SCUT		1
 #define EVT_RESTART_TTYD		1
 #define EVT_RESTART_SMARTDNS      	1
-#define EVT_RESTART_VLMCSD		1
 #define EVT_RESTART_SHADOWSOCKS	2
-#define EVT_RESTART_ADBYBY	2
-#define EVT_RESTART_ZEROTIER    2
+#define EVT_RESTART_SS_TUNNEL		2
+#define EVT_RESTART_ADBYBY		2
 #define EVT_RESTART_DDNSTO     	2
+#define EVT_RESTART_ALIDDNS		2
 #define EVT_RESTART_ALDRIVER     	2
 #define EVT_RESTART_WIREGUARD     	2
 #define EVT_RESTART_SQM		2
-#define EVT_RESTART_ALIDDNS	2
+
 #define EVT_RESTART_FRP      		2
-#define EVT_RESTART_SS_TUNNEL		2
-#define EVT_RESTART_DNSFORWARDER	1
-#define EVT_RESTART_MENTOHUST		2
-#define EVT_RESTART_ADGUARDHOME      	1
+#define EVT_RESTART_WYY		2
+#define EVT_RESTART_SMARTDNS		1
+#define EVT_RESTART_ADGUARDHOME		1
+#define EVT_RESTART_ZEROTIER     	2
 #define EVT_RESTART_REBOOT		40
 
 struct variable
@@ -204,3 +200,4 @@ struct variable *GetVariables(int sid);
 
 
 #endif /* _COMMON_H_ */
+

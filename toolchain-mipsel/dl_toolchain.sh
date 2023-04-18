@@ -1,7 +1,7 @@
 #!/bin/sh
 
 DIR="toolchain-4.4.x"
-DL_URL="https://github.com/hanwckf/padavan-toolchain/releases/download/linux-4.4-v1.0"
+DL_URL="https://github.com/896660689/builb--padavan/releases/download/padavan_4.4/"
 
 dl() {
 	[ -z "$1" ] && return

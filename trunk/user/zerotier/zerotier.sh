@@ -22,7 +22,7 @@ start_instance() {
     fi
     mkdir -p $config_path/networks.d
     if [ -n "$port" ]; then
-        args="$args -p$port"
+        args="$args -p $port"
     fi
     if [ -z "$secret" ]; then
         logger -t "zerotier" "设备密匙为空,正在生成密匙,请稍后..."
@@ -76,7 +76,6 @@ start_instance() {
         logger -t "zerotier" "orbit moonid $moonid ok!"
     fi
 
-
     if [ -n "$enablemoonserv" ]; then
         if [ "$enablemoonserv" -eq "1" ]; then
             logger -t "zerotier" "creat moon start"
@@ -95,18 +94,18 @@ add_join() {
 
 rules() {
     while [ "$(ifconfig | grep zt | awk '{print $1}')" = "" ]; do
-        sleep 2
+        sleep 1
     done
     nat_enable=$(nvram get zerotier_nat)
     zt0=$(ifconfig | grep zt | awk '{print $1}')
-    logger -t "zerotier" "zt interface $zt0 is started!"
+    logger -t "zerotier" "zt interface "$zt0" is started!"
     del_rules
-    iptables -A INPUT -i $zt0 -j ACCEPT
-    iptables -A FORWARD -i $zt0 -o $zt0 -j ACCEPT
-    iptables -A FORWARD -i $zt0 -j ACCEPT
+    iptables -A INPUT -i "$zt0" -j ACCEPT
+    iptables -A FORWARD -i "$zt0" -o "$zt0" -j ACCEPT
+    iptables -A FORWARD -i "$zt0" -j ACCEPT
     if [ $nat_enable -eq 1 ]; then
-        iptables -t nat -A POSTROUTING -o $zt0 -j MASQUERADE
-        ip_segment="$(ip route | grep "dev $zt0 proto kernel" | awk '{print $1}')"
+        iptables -t nat -A POSTROUTING -o "$zt0" -j MASQUERADE
+        ip_segment="$(ip route | grep "dev "$zt0" proto kernel" | awk '{print $1}')"
         iptables -t nat -A POSTROUTING -s $ip_segment -j MASQUERADE
         zero_route "add"
     fi
@@ -116,30 +115,30 @@ rules() {
 
 del_rules() {
     zt0=$(ifconfig | grep zt | awk '{print $1}')
-    ip_segment=`ip route | grep "dev $zt0  proto" | awk '{print $1}'`
-    iptables -D FORWARD -i $zt0 -j ACCEPT 2>/dev/null
-    iptables -D FORWARD -o $zt0 -j ACCEPT 2>/dev/null
-    iptables -D FORWARD -i $zt0 -o $zt0 -j ACCEPT
-    iptables -D INPUT -i $zt0 -j ACCEPT 2>/dev/null
-    iptables -t nat -D POSTROUTING -o $zt0 -j MASQUERADE 2>/dev/null
-    iptables -t nat -D POSTROUTING -s $ip_segment -j MASQUERADE 2>/dev/null
+    ip_segment=`ip route | grep "dev "$zt0"  proto" | awk '{print $1}'`
+    iptables -D FORWARD -i "$zt0" -j ACCEPT 2>/dev/null
+    iptables -D FORWARD -o "$zt0" -j ACCEPT 2>/dev/null
+    iptables -D FORWARD -i "$zt0" -o "$zt0" -j ACCEPT
+    iptables -D INPUT -i "$zt0" -j ACCEPT 2>/dev/null
+    iptables -t nat -D POSTROUTING -o "$zt0" -j MASQUERADE 2>/dev/null
+    iptables -t nat -D POSTROUTING -s "$ip_segment" -j MASQUERADE 2>/dev/null
 }
 
-zero_route(){
-    rulesnum=`nvram get zero_staticnum_x`
-    for i in $(seq 1 $rulesnum)
+zero_route() {
+    rulesnum=$(nvram get zero_staticnum_x)
+    for i in $(seq 1 "$rulesnum")
     do
-        j=`expr $i - 1`
-        route_enable=`nvram get zero_enable_x$j`
-        zero_ip=`nvram get zero_ip_x$j`
-        zero_route=`nvram get zero_route_x$j`
+        j=$(("$i" - 1))
+        rulesnum=$(nvram get zero_staticnum_x)
+        zero_ip=$(nvram get zero_ip_x"$j")
+        zero_route=$(nvram get zero_route_x"$j")
         if [ "$1" = "add" ]; then
-            if [ $route_enable -ne 0 ]; then
-                ip route add $zero_ip via $zero_route dev $zt0
+            if [ "$route_enable" -ne 0 ]; then
+                ip route add "$zero_ip" via "$zero_route" dev "$zt0"
                 echo "$zt0"
             fi
         else
-            ip route del $zero_ip via $zero_route dev $zt0
+            ip route del "$zero_ip" via "$zero_route" dev "$zt0"
         fi
     done
 }
@@ -239,7 +238,7 @@ stop)
     ;;
 *)
     echo "check"
-    #exit 0
+    exit 0
     ;;
 esac
 

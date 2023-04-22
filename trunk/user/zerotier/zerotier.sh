@@ -1,4 +1,4 @@
-#!/bin/sh
+#! /bin/bash
 #20200426 chongshengB
 #20210410 xumng123
 
@@ -91,7 +91,6 @@ add_join() {
     touch $config_path/networks.d/"$1".conf
 }
 
-
 rules() {
     while [ "$(ifconfig | grep zt | awk '{print $1}')" = "" ]; do
         sleep 1
@@ -111,7 +110,6 @@ rules() {
     fi
 
 }
-
 
 del_rules() {
     zt0=$(ifconfig | grep zt | awk '{print $1}')
@@ -230,15 +228,15 @@ remove_moon(){
 }
 
 case "$1" in
-  start)
-    start_zero
-    ;;
+start)
+	start_zero
+	;;
 stop)
-    stop_zero
-    ;;
+	stop_zero
+	;;
 *)
-    echo "check"
-    exit 0
-    ;;
+	echo "check"
+	#exit 0
+	;;
 esac
 

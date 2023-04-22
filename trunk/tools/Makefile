@@ -1,3 +1,5 @@
+THISDIR = $(shell pwd)
+go_version = 1.20.3
 # use host target
 CC        = gcc
 GCC       = gcc
@@ -16,8 +18,7 @@ CFLAGS    = -Wall -O2
 LDFLAGS   =
 
 THISDIR = $(shell pwd)
-#N_PATH := $(THISDIR)/go/go/bin:$(PATH)
-#export PATH=$(N_PATH)
+
 include $(ROOTDIR)/coustom
 -include $(LINUX_CONFIG)
 
@@ -31,11 +32,11 @@ all:go_build
 go_build:
 ifeq ($(GITHUB_ACTION),n)
 	mkdir -p $(THISDIR)/go
-	( if [ ! -f $(THISDIR)/go/go1.17.6.linux-amd64.tar.gz ]; then \
-	curl --create-dirs -L https://gomirrors.org/dl/go/go1.17.6.linux-amd64.tar.gz -o $(THISDIR)/go/go1.17.6.linux-amd64.tar.gz ; \
+	( if [ ! -f $(THISDIR)/go/go$(go_version).linux-amd64.tar.gz ]; then \
+	curl --create-dirs -L https://go.dev/dl/go$(go_version).linux-amd64.tar.gz -o $(THISDIR)/go/go$(go_version).linux-amd64.tar.gz ; \
 	fi )
 	( if [ ! -d $(THISDIR)/go/go ]; then \
-	tar zxfv $(THISDIR)/go/go1.17.6.linux-amd64.tar.gz -C go ; \
+	tar zxfv $(THISDIR)/go/go$(go_version).linux-amd64.tar.gz -C go ; \
 	fi )
 endif
 clean:
@@ -46,3 +47,4 @@ clean:
 	make -C mkimage clean
 	make -C lzma clean
 	make -C mksquashfs_xz clean
+

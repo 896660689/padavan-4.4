@@ -127,7 +127,6 @@ start_zero() {
 	logger -t "zerotier" "正在启动zerotier"
 	kill_z
 	start_instance 'zerotier'
-
 }
 kill_z() {
 	zerotier_process=$(pidof zerotier-one)
@@ -150,7 +149,6 @@ creat_moon(){
 	#检查是否合法ip
 	regex="\b(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[1-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[1-9])\b"
 	ckStep2=`echo $moonip | egrep $regex | wc -l`
-
 	logger -t "zerotier" "搭建ZeroTier的Moon中转服务器，生成moon配置文件"
 	if [ -z "$moonip" ]; then
 		#自动获取wanip
@@ -192,7 +190,7 @@ creat_moon(){
 }
 remove_moon(){
 	zmoonid="$(nvram get zerotiermoon_id)"
-	if [ ! -n "$zmoonid"]; then
+	if [ ! -n "$zmoonid" ]; then
 		rm -f $config_path/moons.d/000000$zmoonid.moon
 		rm -f $config_path/moon.json
 		nvram set zerotiermoon_id=""

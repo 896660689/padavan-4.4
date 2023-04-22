@@ -92,20 +92,20 @@ rules() {
 	iptables -A FORWARD -i "$zt0" -j ACCEPT
 	if [ $nat_enable -eq 1 ]; then
 		iptables -t nat -A POSTROUTING -o "$zt0" -j MASQUERADE
-		ip_segment="$(ip route | grep "dev "$zt0" proto kernel" | awk '{print $1}')"
-		iptables -t nat -A POSTROUTING -s $ip_segment -j MASQUERADE
+		ip_segment="$(ip route | grep 'dev "$zt0" proto kernel' | awk '{print $1}')"
+		iptables -t nat -A POSTROUTING -s "$ip_segment" -j MASQUERADE
 		zero_route "add"
 	fi
 }
 del_rules() {
 	zt0=$(ifconfig | grep zt | awk '{print $1}')
-	ip_segment=`ip route | grep "dev $zt0  proto" | awk '{print $1}'`
-	iptables -D FORWARD -i $zt0 -j ACCEPT 2>/dev/null
-	iptables -D FORWARD -o $zt0 -j ACCEPT 2>/dev/null
-	iptables -D FORWARD -i $zt0 -o $zt0 -j ACCEPT
-	iptables -D INPUT -i $zt0 -j ACCEPT 2>/dev/null
-	iptables -t nat -D POSTROUTING -o $zt0 -j MASQUERADE 2>/dev/null
-	iptables -t nat -D POSTROUTING -s $ip_segment -j MASQUERADE 2>/dev/null
+	ip_segment="$(ip route | grep 'dev "$zt0" proto' | awk '{print $1}')"
+	iptables -D FORWARD -i "$zt0" -j ACCEPT 2>/dev/null
+	iptables -D FORWARD -o "$zt0" -j ACCEPT 2>/dev/null
+	iptables -D FORWARD -i "$zt0" -o "$zt0" -j ACCEPT 2>/dev/null
+	iptables -D INPUT -i "$zt0" -j ACCEPT 2>/dev/null
+	iptables -t nat -D POSTROUTING -o "$zt0" -j MASQUERADE 2>/dev/null
+	iptables -t nat -D POSTROUTING -s "$ip_segment" -j MASQUERADE 2>/dev/null
 }
 zero_route() {
 	rulesnum=`nvram get zero_staticnum_x`
@@ -117,11 +117,11 @@ zero_route() {
 		zero_route=`nvram get zero_route_x$j`
 		if [ "$1" = "add" ]; then
 			if [ $route_enable -ne 0 ]; then
-				ip route add $zero_ip via $zero_route dev $zt0
+				ip route add "$zero_ip" via "$zero_route" dev "$zt0"
 				echo "$zt0"
 			fi
 		else
-			ip route del $zero_ip via $zero_route dev $zt0
+			ip route del "$zero_ip" via $zero_route dev "$zt0"
 		fi
 	done
 }

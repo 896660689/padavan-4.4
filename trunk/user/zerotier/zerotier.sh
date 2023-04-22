@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #20200426
 zr_home="/etc/storage/zerotier"
 PROG=/usr/bin/zerotier-one
@@ -14,10 +14,8 @@ start_instance() {
     secret="$(nvram get zerotier_secret)"
     enablemoonserv="$(nvram get zerotiermoon_enable)"
     planet="$(nvram get zerotier_planet)"
-    if [ ! -d "$config_path" ]; then
-        mkdir -p $config_path
-    fi
-    mkdir -p $config_path/networks.d
+    [ ! -d "$config_path" ] && mkdir -p $config_path
+    [ ! -d "$config_path/networks.d" ] && mkdir -p $config_path/networks.d
     if [ -n "$port" ]; then
         args="$args -p $port"
     fi
@@ -92,8 +90,8 @@ rules() {
 	iptables -A FORWARD -i "$zt0" -j ACCEPT
 	if [ $nat_enable -eq 1 ]; then
 		iptables -t nat -A POSTROUTING -o "$zt0" -j MASQUERADE
-		ip_segment="$(ip route | grep 'dev "$zt0" proto kernel' | awk '{print $1}')"
-		iptables -t nat -A POSTROUTING -s "$ip_segment" -j MASQUERADE
+		ip_segment="$(ip route | grep "dev $zt0 proto kernel" | awk '{print $1}')"
+		iptables -t nat -A POSTROUTING -s "${ip_segment}" -j MASQUERADE 2>/dev/null
 		zero_route "add"
 	fi
 }
@@ -105,13 +103,13 @@ del_rules() {
 	iptables -D FORWARD -i "$zt0" -o "$zt0" -j ACCEPT 2>/dev/null
 	iptables -D INPUT -i "$zt0" -j ACCEPT 2>/dev/null
 	iptables -t nat -D POSTROUTING -o "$zt0" -j MASQUERADE 2>/dev/null
-	iptables -t nat -D POSTROUTING -s "$ip_segment" -j MASQUERADE 2>/dev/null
+	iptables -t nat -D POSTROUTING -s "${ip_segment}" -j MASQUERADE 2>/dev/null
 }
 zero_route() {
 	rulesnum=`nvram get zero_staticnum_x`
-	for i in $(seq 1 $rulesnum)
+	for i in $(seq 1 "$rulesnum")
 	do
-		j=`expr $i - 1`
+		j=`expr "$i" - 1`
 		route_enable=`nvram get zero_enable_x$j`
 		zero_ip=`nvram get zero_ip_x$j`
 		zero_route=`nvram get zero_route_x$j`
@@ -165,14 +163,12 @@ creat_moon(){
 	fi
 	logger -t "zerotier" "moonip $ip_addr"
 	if [ -e $config_path/identity.public ]; then
-
 		$PROGIDT initmoon $config_path/identity.public > $config_path/moon.json
 		if `sed -i "s/\[\]/\[ \"$ip_addr\/9993\" \]/" $config_path/moon.json >/dev/null 2>/dev/null`; then
 			logger -t "zerotier" "生成moon配置文件成功"
 		else
 			logger -t "zerotier" "生成moon配置文件失败"
 		fi
-
 		logger -t "zerotier" "生成签名文件"
 		cd $config_path
 		pwd
@@ -182,15 +178,12 @@ creat_moon(){
 		if [ ! -d "$config_path/moons.d" ]; then
 			mkdir -p $config_path/moons.d
 		fi
-		
 		#服务器加入moon server
 		mv $config_path/*.moon $config_path/moons.d/ >/dev/null 2>&1
 		logger -t "zerotier" "moon节点创建完成"
-
 		zmoonid=`cat moon.json | awk -F "[id]" '/"id"/{print$0}'` >/dev/null 2>&1
 		zmoonid=`echo $zmoonid | awk -F "[:]" '/"id"/{print$2}'` >/dev/null 2>&1
 		zmoonid=`echo $zmoonid | tr -d '"|,'`
-
 		nvram set zerotiermoon_id="$zmoonid"
 		nvram commit
 	else
@@ -199,7 +192,6 @@ creat_moon(){
 }
 remove_moon(){
 	zmoonid="$(nvram get zerotiermoon_id)"
-	
 	if [ ! -n "$zmoonid"]; then
 		rm -f $config_path/moons.d/000000$zmoonid.moon
 		rm -f $config_path/moon.json

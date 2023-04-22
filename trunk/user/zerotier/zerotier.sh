@@ -1,11 +1,10 @@
-#!/bin/bash
+#!/bin/sh
 #20200426
 zr_home="/etc/storage/zerotier"
 PROG=/usr/bin/zerotier-one
 PROGCLI=/usr/bin/zerotier-cli
 PROGIDT=/usr/bin/zerotier-idtool
 config_path="$zr_home/zerotier-one"
-PLANET="$zr_home/zerotier-one/planet"
 start_instance() {
     cfg="$1"
     echo "$cfg"

@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/sh
 #20200426 chongshengB
 #20210410 xumng123
 

@@ -1,14 +1,11 @@
-#!/bin/sh
-#20200426 chongshengB
-#20210410 xumng123
-
+#!/bin/bash
+#20200426
 zr_home="/etc/storage/zerotier"
 PROG=/usr/bin/zerotier-one
 PROGCLI=/usr/bin/zerotier-cli
 PROGIDT=/usr/bin/zerotier-idtool
 config_path="$zr_home/zerotier-one"
 PLANET="$zr_home/zerotier-one/planet"
-
 start_instance() {
     cfg="$1"
     echo "$cfg"
@@ -42,13 +39,11 @@ start_instance() {
         $PROGIDT getpublic $config_path/identity.secret >$config_path/identity.public
         #rm -f $config_path/identity.public
     fi
-
     if [ -n "$planet" ]; then
         logger -t "zerotier" "找到planet,正在写入文件,请稍后..."
         echo "$planet" >$config_path/planet.tmp
         base64 -d $config_path/planet.tmp >$config_path/planet
     fi
-
     if [ -f "$PLANET" ]; then
         if [ ! -s "$PLANET" ]; then
             logger -t "zerotier" "自定义planet文件为空,删除..."
@@ -65,18 +60,13 @@ start_instance() {
             nvram commit
         fi
     fi
-
     add_join $(nvram get zerotier_id)
-
     $PROG "$args" $config_path >/dev/null 2>&1 &
-
     rules &
-
     if [ -n "$moonid" ]; then
         $PROGCLI -D $config_path orbit "$moonid" "$moonid"
         logger -t "zerotier" "orbit moonid $moonid ok!"
     fi
-
     if [ -n "$enablemoonserv" ]; then
         if [ "$enablemoonserv" -eq "1" ]; then
             logger -t "zerotier" "creat moon start"
@@ -87,11 +77,9 @@ start_instance() {
         fi
     fi
 }
-
 add_join() {
 	touch $config_path/networks.d/"$1".conf
 }
-
 rules() {
 	while [ "$(ifconfig | grep zt | awk '{print $1}')" = "" ]; do
 		sleep 1
@@ -110,7 +98,6 @@ rules() {
 		zero_route "add"
 	fi
 }
-
 del_rules() {
 	zt0=$(ifconfig | grep zt | awk '{print $1}')
 	ip_segment=`ip route | grep "dev $zt0  proto" | awk '{print $1}'`
@@ -121,7 +108,6 @@ del_rules() {
 	iptables -t nat -D POSTROUTING -o $zt0 -j MASQUERADE 2>/dev/null
 	iptables -t nat -D POSTROUTING -s $ip_segment -j MASQUERADE 2>/dev/null
 }
-
 zero_route() {
 	rulesnum=`nvram get zero_staticnum_x`
 	for i in $(seq 1 $rulesnum)
@@ -140,7 +126,6 @@ zero_route() {
 		fi
 	done
 }
-
 start_zero() {
 	logger -t "zerotier" "正在启动zerotier"
 	kill_z
@@ -161,7 +146,6 @@ stop_zero() {
 	kill_z
 	rm -rf $config_path
 }
-
 #创建moon节点
 creat_moon(){
 	moonip="$(nvram get zerotiermoon_ip)"
@@ -214,7 +198,6 @@ creat_moon(){
 		logger -t "zerotier" "identity.public不存在"
 	fi
 }
-
 remove_moon(){
 	zmoonid="$(nvram get zerotiermoon_id)"
 	
@@ -225,7 +208,6 @@ remove_moon(){
 		nvram commit
 	fi
 }
-
 case "$1" in
 start)
 	start_zero

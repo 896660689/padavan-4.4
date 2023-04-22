@@ -125,21 +125,21 @@ del_rules() {
     iptables -t nat -D POSTROUTING -s $ip_segment -j MASQUERADE 2>/dev/null
 }
 
-zero_route(){
-    rulesnum=`nvram get zero_staticnum_x`
-    for i in $(seq 1 $rulesnum)
+zero_route() {
+    rulesnum=$(nvram get zero_staticnum_x)
+    for i in $(seq 1 "$rulesnum")
     do
-        j=`expr $i - 1`
-        route_enable=`nvram get zero_enable_x$j`
-        zero_ip=`nvram get zero_ip_x$j`
-        zero_route=`nvram get zero_route_x$j`
+        j=$(("$i" - 1))
+        rulesnum=$(nvram get zero_staticnum_x)
+        zero_ip=$(nvram get zero_ip_x"$j")
+        zero_route=$(nvram get zero_route_x"$j")
         if [ "$1" = "add" ]; then
-            if [ $route_enable -ne 0 ]; then
-                ip route add $zero_ip via $zero_route dev $zt0
+            if [ "$route_enable" -ne 0 ]; then
+                ip route add "$zero_ip" via "$zero_route" dev "$zt0"
                 echo "$zt0"
             fi
         else
-            ip route del $zero_ip via $zero_route dev $zt0
+            ip route del "$zero_ip" via "$zero_route" dev "$zt0"
         fi
     done
 }

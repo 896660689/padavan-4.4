@@ -1,10 +1,11 @@
-#!/bin/bash
+#!/bin/sh
 #20200426
-zr_home="/etc/storage/zerotier"
+
 PROG=/usr/bin/zerotier-one
 PROGCLI=/usr/bin/zerotier-cli
 PROGIDT=/usr/bin/zerotier-idtool
-config_path="$zr_home/zerotier-one"
+config_path="/etc/storage/zerotier-one"
+
 start_instance() {
     cfg="$1"
     echo "$cfg"
@@ -74,9 +75,11 @@ start_instance() {
         fi
     fi
 }
+
 add_join() {
     touch $config_path/networks.d/"$1".conf
 }
+
 rules() {
     while [ "$(ifconfig | grep zt | awk '{print $1}')" = "" ]; do
         sleep 1
@@ -95,6 +98,7 @@ rules() {
         zero_route "add"
     fi
 }
+
 del_rules() {
     zt0=$(ifconfig | grep zt | awk '{print $1}')
     ip_segment="$(ip route | grep 'dev "$zt0" proto' | awk '{print $1}')"
@@ -105,6 +109,7 @@ del_rules() {
     iptables -t nat -D POSTROUTING -o "$zt0" -j MASQUERADE 2>/dev/null
     iptables -t nat -D POSTROUTING -s "${ip_segment}" -j MASQUERADE 2>/dev/null
 }
+
 zero_route() {
     rulesnum=$(nvram get zero_staticnum_x)
     for i in $(seq 1 "$rulesnum")
@@ -123,11 +128,13 @@ zero_route() {
         fi
     done
 }
+
 start_zero() {
     logger -t "zerotier" "up zerotier"
     kill_z
     start_instance 'zerotier'
 }
+
 kill_z() {
     zerotier_process=$(pidof zerotier-one)
     if [ -n "$zerotier_process" ]; then
@@ -136,12 +143,14 @@ kill_z() {
         kill -9 "$zerotier_process" >/dev/null 2>&1
     fi
 }
+
 stop_zero() {
     del_rules &
     zero_route "del"
     kill_z
     rm -rf $config_path
 }
+
 #moon
 creat_moon(){
     moonip="$(nvram get zerotiermoon_ip)"
@@ -186,7 +195,8 @@ creat_moon(){
         logger -t "zerotier" "identity.public no"
     fi
 }
-remove_moon(){
+
+remove_moon() {
     zmoonid="$(nvram get zerotiermoon_id)"
     if [ ! -n "$zmoonid" ]; then
         $config_path/moons.d/000000"$zmoonid".moon
@@ -195,7 +205,9 @@ remove_moon(){
         nvram commit
     fi
 }
+
 case "$1" in
+
 start)
     start_zero
     ;;

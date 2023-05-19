@@ -560,6 +560,7 @@ EOF
 # Custom user hosts file
 # Example:
 #192.168.2.80 Boo
+20.205.243.166 github.com
 
 EOF
 		chmod 644 "$user_hosts"

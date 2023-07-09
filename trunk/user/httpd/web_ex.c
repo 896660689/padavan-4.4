@@ -3269,16 +3269,13 @@ apply_cgi(const char *url, webs_t wp)
 	}
 	else if (!strcmp(value, " Reboot "))
 	{
-		int reboot_mode = nvram_get_int("reboot_mode");
-		if ( reboot_mode == 0)
-		{
-			sys_reboot();
-		}
-		else if ( reboot_mode == 1)
-		{
-			doSystem("/sbin/mtd_storage.sh %s", "save");
-			system("mtd_write -r unlock mtd1");
-		}
+		sys_reboot();
+		return 0;
+	}
+	else if (!strcmp(value, " FreeMemory "))
+	{
+		doSystem("sync");
+		doSystem("echo 3 > /proc/sys/vm/drop_caches");
 		return 0;
 	}
 	else if (!strcmp(value, " RestoreNVRAM "))

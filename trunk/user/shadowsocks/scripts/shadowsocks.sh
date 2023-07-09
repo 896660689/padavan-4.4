@@ -272,8 +272,7 @@ func_port_agent_mode(){
         logger -t "[DNS]" "使用 [dns-forwarder] 解析方式 !"
     elif [ "$ss_router_proxy" = "3" ]
     then
-        #/usr/bin/dnsproxy -T -p $ss_tunnel_local_port -R $dns2_ip >/dev/null 2>&1 &
-        /usr/bin/dnsproxy -d -p $ss_tunnel_local_port -R $dns2_ip >/dev/null 2>&1 &
+        /usr/bin/dnsproxy -T -p $ss_tunnel_local_port -R $dns2_ip >/dev/null 2>&1 &
         logger -t "[DNS]" "使用 [dnsproxy] 解析方式 !"
     elif [ "$ss_router_proxy" = "4" ]
     then

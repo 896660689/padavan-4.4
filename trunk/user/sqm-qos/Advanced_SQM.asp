@@ -2,9 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>
-        <#Web_Title#> - SQM QoS
-    </title>
+<title><#Web_Title#> - <#menu5_37#></title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="-1">
@@ -39,7 +37,7 @@ var $j = jQuery.noConflict();
 
         function initial() {
             show_banner(2);
-            show_menu(5,13,0);
+            show_menu(12,-1,0);
             show_footer();
             fill_sqm_status(sqm_status());
             showTab(getHash());

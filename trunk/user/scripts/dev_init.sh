@@ -4,13 +4,18 @@ mount -t proc proc /proc
 mount -t sysfs sysfs /sys
 [ -d /proc/bus/usb ] && mount -t usbfs usbfs /proc/bus/usb
 
-size_tmp="24M"
+size_tmp="26M"
 size_var="4M"
-size_etc="6M"
 
 if [ "$1" == "-l" ] ; then
 	size_tmp="8M"
 	size_var="1M"
+fi
+
+if [ "$1" == "-b" ] ; then
+	size_etc="10M"
+else
+	size_etc="6M"
 fi
 
 mount -t tmpfs tmpfs /dev   -o size=8K
@@ -55,6 +60,25 @@ mkdir -p -m 755 /etc/ssl
 mkdir -p -m 755 /etc/Wireless
 mkdir -p -m 750 /etc/Wireless/RT2860
 mkdir -p -m 750 /etc/Wireless/iNIC
+
+# mount cgroupfs if kernel provides cgroups
+if [ -e /proc/cgroups ] && [ -d /sys/fs/cgroup ]; then
+	if ! mountpoint -q /sys/fs/cgroup; then
+		mount -t tmpfs -o uid=0,gid=0,mode=0755 cgroup /sys/fs/cgroup
+	fi
+	(cd /sys/fs/cgroup
+	for sys in $(awk '!/^#/ { if ($4 == 1) print $1 }' /proc/cgroups); do
+		mkdir -p $sys
+		if ! mountpoint -q $sys; then
+			if ! mount -n -t cgroup -o $sys cgroup $sys; then
+				rmdir $sys || true
+			fi
+		fi
+	done)
+	if [ -e /sys/fs/cgroup/memory/memory.use_hierarchy ]; then
+		echo 1 > /sys/fs/cgroup/memory/memory.use_hierarchy
+	fi
+fi
 
 # extract storage files
 mtd_storage.sh load

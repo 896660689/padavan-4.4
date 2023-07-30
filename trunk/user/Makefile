@@ -14,7 +14,14 @@ UCLINUX_BUILD_USER=1
 include $(PROJECT_CONFIG)
 include $(ARCH_CONFIG)
 
+CFLAGS  += -ffunction-sections -fdata-sections
+CPPFLAGS += -ffunction-sections -fdata-sections
+LDFLAGS += -Wl,--gc-sections
+
 INSTALLDIR = $(ROOTDIR)/romfs
+
+BOARD_CONFIG = $(ROOTDIR)/user/boards.mk
+CFLAGS_CONFIG = $(ROOTDIR)/user/cflags.mk
 
 FS_EXT_ENABLED=n
 FS_FAT_ENABLED=n
@@ -82,12 +89,20 @@ ifneq ($(filter y,$(CONFIG_FIRMWARE_INCLUDE_SSSERVER) $(CONFIG_FIRMWARE_INCLUDE_
 SHADOWSOCKS_ENABLE=y
 endif
 
+ifeq ($(filter y,$(CONFIG_FIRMWARE_INCLUDE_REDSOCKS)),y)
+REDSOCKS_ENABLED=y
+endif
+
 ifneq ($(filter y,$(CONFIG_FIRMWARE_INCLUDE_FRPC) $(CONFIG_FIRMWARE_INCLUDE_FRPS)),)
 FRP_ENABLE=y
 endif
 
 ifneq ($(filter y,$(CONFIG_FIRMWARE_INCLUDE_WING) $(CONFIG_FIRMWARE_INCLUDE_TROJAN)),)
 TROJAN_ENABLE=y
+endif
+
+ifneq ($(filter y,$(CONFIG_FIRMWARE_INCLUDE_SSSERVER) $(CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS)),)
+SHADOWSOCKS_ENABLE=y
 endif
 
 dir_y =
@@ -99,10 +114,9 @@ dir_y						+= iptables
 ifneq ($(CONFIG_WITHOUT_KERNEL),y)
 dir_$(CONFIG_FIRMWARE_INCLUDE_IPSET)		+= ipset
 endif
-dir_y						+= poptop
 dir_y						+= ebtables
 dir_y						+= iproute2
-dir_y						+= wireless_tools
+dir_y						+= wireless-tools
 dir_y						+= shared
 dir_$(STORAGE_ENABLED)				+= libdisk
 dir_y						+= nvram
@@ -117,30 +131,22 @@ dir_y						+= inadyn
 dir_y						+= miniupnpd
 dir_y						+= dnsmasq
 dir_y						+= igmpproxy
+ifneq ($(CONFIG_FIRMWARE_INCLUDE_MSD_LITE),y)
 dir_y						+= udpxy
+endif
 dir_y						+= utils
 dir_y						+= lanauth
 dir_y						+= 802.1x
 dir_y						+= wpa_supplicant
 dir_y						+= pppd
 dir_y						+= pppoe
+dir_y						+= pppoe-relay
+dir_y						+= poptop
 dir_y						+= xl2tpd
 dir_$(CONFIG_FIRMWARE_INCLUDE_RPL2TP)		+= rp-l2tp
 dir_y						+= lldt
 dir_y						+= scripts
-dir_$(CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS)						+= skipdbv2
-dir_$(CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS)						+= lua51
-dir_$(CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS)            +=ipt2socks
-dir_$(CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS)            +=resolveip
-dir_$(CONFIG_FIRMWARE_INCLUDE_ADGUARDHOME)      	+= adguardhome
-dir_$(CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS)	        += dns2tcp
 
-ifeq ($(CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS),y)
-dir_$(CONFIG_FIRMWARE_INCLUDE_V2RAY)	        += v2ray
-dir_$(CONFIG_FIRMWARE_INCLUDE_XRAY)	        += xray
-dir_$(CONFIG_FIRMWARE_INCLUDE_TROJAN)	        += trojan
-endif
-dir_$(CONFIG_FIRMWARE_INCLUDE_SSOBFS)                      += simple-obfs
 dir_$(CONFIG_FIRMWARE_INCLUDE_ZEROTIER)	                       += zerotier
 dir_$(CONFIG_FIRMWARE_INCLUDE_DDNSTO)	                       += ddnsto
 dir_$(CONFIG_FIRMWARE_INCLUDE_ALDRIVER)	                       += aliyundrive-webdav
@@ -163,17 +169,25 @@ dir_$(CONFIG_FIRMWARE_INCLUDE_TUNSAFE) += tunsafe
 ifeq ($(CONFIG_FIRMWARE_INCLUDE_WIREGUARD),y)
 dir_y += wireguard
 dir_y += wireguard-tools
+dir_y += wg-quick
 endif
 dir_$(SAMBA_ENABLED)				+= samba36
 dir_$(SAMBA_ENABLED)				+= wsdd2
-dir_$(CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS)	+= chnroute
+
 dir_$(CONFIG_FIRMWARE_INCLUDE_TTYD)		+= ttyd
+dir_$(CONFIG_FIRMWARE_INCLUDE_MSD_LITE)		+= msd_lite
 dir_$(FRP_ENABLE)				+= frp
 dir_$(SOFTETHERVPN_ENABLE)			+= softethervpn
-dir_$(CONFIG_FIRMWARE_INCLUDE_SCUTCLIENT)         += scutclient
 dir_$(CONFIG_FIRMWARE_INCLUDE_VLMCSD)			+= vlmcsd
-dir_$(CONFIG_FIRMWARE_INCLUDE_DNSFORWARDER)		+= dns-forwarder
 dir_$(SHADOWSOCKS_ENABLE)				+= shadowsocks
+dir_$(CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS)	+= chnroute
+dir_$(CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS)	+= dns-forwarder
+dir_$(CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS)	+= dnsproxy
+dir_$(CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS)	+= pdnsd
+dir_$(CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS)	+= dns2tcp
+dir_$(CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS)	+= chinadns-ng
+dir_$(CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS)	+= ipt2socks
+dir_$(CONFIG_FIRMWARE_INCLUDE_SHADOWSOCKS)	+= xray
 dir_$(CONFIG_FIRMWARE_INCLUDE_LRZSZ)			+= lrzsz
 dir_$(CONFIG_FIRMWARE_INCLUDE_GDUT_DRCOM)		+= gdut-drcom
 dir_$(CONFIG_FIRMWARE_INCLUDE_DOGCOM)			+= dogcom
@@ -185,10 +199,9 @@ dir_$(CONFIG_FIRMWARE_INCLUDE_SMARTDNS)		+= smartdns
 dir_$(CONFIG_FIRMWARE_INCLUDE_xTUN) 			+= xTun
 ifeq ($(CONFIG_FIRMWARE_INCLUDE_WING),y)
 dir_y 			+= wing
-dir_y 			+= ipt2socks
 endif
 
-dir_$(CONFIG_FIRMWARE_INCLUDE_REDSOCKS)			+= redsocks
+dir_$(CONFIG_FIRMWARE_INCLUDE_REDSOCKS)	+= redsocks
 dir_$(CONFIG_FIRMWARE_INCLUDE_3PROXY)			+= 3proxy
 
 ifdef CONFIG_BLK_DEV_SD
@@ -231,30 +244,21 @@ endif
 dir_y						+= mtd-utils
 endif
 
-all:
-	for i in $(dir_y) ; do \
-		[ ! -d $$i ] || \
-		$(MAKE) -j1 -C $$i || \
-		exit $$? ; \
-	done
+all: $(patsubst %,%_only,$(dir_y))
+
+romfs: $(patsubst %,%_romfs,$(dir_y))
+
+clean: $(patsubst %,%_clean,$(dir_y) $(dir_n) $(dir_))
 
 %_only:
+	@echo "\033[37;43m BUILD \033[0m\033[37;44m   $(@:_only=)   \033[0m"
 	$(MAKE) -C $(@:_only=)
 
 %_romfs:
+	@echo "\033[37;42m ROMFS \033[0m\033[37;44m   $(@:_romfs=)   \033[0m"
 	$(MAKE) -C $(@:_romfs=) romfs
 
 %_clean:
-	$(MAKE) -C $(@:_clean=) clean
+	@echo "\033[37;42m CLEAN \033[0m\033[37;44m   $(@:_clean=)   \033[0m"
+	$(MAKE) -C $(@:_clean=) clean || true
 
-romfs:
-	for i in $(dir_y) ; do \
-		[ ! -d $$i ] || \
-		$(MAKE) -C $$i romfs ; \
-	done
-
-clean:
-	for i in `ls -d *` ; do \
-		[ ! -d $$i ] || \
-		$(MAKE) -C $$i clean ; \
-	done

@@ -739,7 +739,7 @@ VOID RRM_PeerNeighborReqAction(
 			MTWF_LOG(DBG_CAT_PROTO, CATPROTO_RRM, DBG_LVL_TRACE, ("DialogToken=%x\n", DialogToken));
 			snprintf(ssidbuf, sizeof(ssidbuf), "%s", pSsid);
 			ssidbuf[SsidLen] = '\0';
-			MTWF_LOG(DBG_CAT_PROTO, CATPROTO_RRM, DBG_LVL_ERROR, ("pSsid=%s\n", pSsid));
+			MTWF_LOG(DBG_CAT_PROTO, CATPROTO_RRM, DBG_LVL_ERROR, ("pSsid=%s\n", /*pSsid*/ssidbuf));
 			MTWF_LOG(DBG_CAT_PROTO, CATPROTO_RRM, DBG_LVL_TRACE, ("SsidLen=%d\n", SsidLen));
 			RRM_EnqueueNeighborRep(pAd, pEntry, DialogToken, pSsid, SsidLen);
 		}
@@ -2525,4 +2525,3 @@ VOID NRStateMachineInit(
 #endif /* CONFIG_11KV_API_SUPPORT*/
 
 #endif /* DOT11K_RRM_SUPPORT */
-

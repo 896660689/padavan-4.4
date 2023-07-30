@@ -175,6 +175,7 @@ void full_restart_ipv6(int ipv6_type_old)
 		full_restart_wan();
 		if (!is_dns_dhcpd_run())
 			start_dns_dhcpd(0);
+		reload_nat_modules();
 	}
 #if defined (APP_NFSD)
 	run_nfsd();
@@ -289,4 +290,3 @@ int ipv6_compact(const char *str6, char *p_comp6, int allow_prefix)
 
 
 #endif
-
